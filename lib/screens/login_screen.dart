@@ -11,13 +11,13 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -27,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final auth = context.read<AuthProvider>();
     final success = await auth.login(
-      _emailController.text.trim(),
+      _usernameController.text.trim(),
       _passwordController.text,
     );
 
@@ -36,6 +36,8 @@ class _LoginScreenState extends State<LoginScreen> {
         SnackBar(
           content: Text(auth.error ?? 'فشل تسجيل الدخول'),
           backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
       );
     }
@@ -122,24 +124,52 @@ class _LoginScreenState extends State<LoginScreen> {
                       key: _formKey,
                       child: Column(
                         children: [
-                          // Email
+                          // معلومات الدخول
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.teal.shade50,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.teal.shade200),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.info_outline, color: Colors.teal.shade700, size: 20),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'سجل دخول بالبريد أو الجوال أو الهوية',
+                                    style: TextStyle(
+                                      color: Colors.teal.shade700,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          
+                          // Username (Email/Phone/ID)
                           TextFormField(
-                            controller: _emailController,
-                            keyboardType: TextInputType.emailAddress,
+                            controller: _usernameController,
+                            keyboardType: TextInputType.text,
                             textDirection: TextDirection.ltr,
                             decoration: InputDecoration(
-                              labelText: 'البريد الإلكتروني',
-                              prefixIcon: const Icon(Icons.email_outlined),
+                              labelText: 'البريد / الجوال / رقم الهوية',
+                              hintText: 'أدخل أي منهم',
+                              prefixIcon: const Icon(Icons.person_outline),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: Color(0xFF0D9488), width: 2),
                               ),
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'أدخل البريد الإلكتروني';
-                              }
-                              if (!value.contains('@')) {
-                                return 'بريد إلكتروني غير صحيح';
+                                return 'أدخل البريد أو الجوال أو رقم الهوية';
                               }
                               return null;
                             },
@@ -169,6 +199,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: Color(0xFF0D9488), width: 2),
+                              ),
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -184,12 +218,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             builder: (context, auth, _) {
                               return SizedBox(
                                 width: double.infinity,
-                                height: 50,
+                                height: 54,
                                 child: ElevatedButton(
                                   onPressed: auth.isLoading ? null : _login,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF0D9488),
                                     foregroundColor: Colors.white,
+                                    elevation: 3,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),
@@ -203,12 +238,19 @@ class _LoginScreenState extends State<LoginScreen> {
                                             strokeWidth: 2,
                                           ),
                                         )
-                                      : const Text(
-                                          'تسجيل الدخول',
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                      : const Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.login, size: 22),
+                                            SizedBox(width: 8),
+                                            Text(
+                                              'تسجيل الدخول',
+                                              style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                 ),
                               );
@@ -216,6 +258,17 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ],
                       ),
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Footer
+                  Text(
+                    'الإصدار 1.0.0',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.6),
+                      fontSize: 12,
                     ),
                   ),
                 ],

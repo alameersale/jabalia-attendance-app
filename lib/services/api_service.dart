@@ -25,12 +25,12 @@ class ApiService {
 
   // ==================== Auth ====================
 
-  Future<Map<String, dynamic>> login(String email, String password) async {
+  Future<Map<String, dynamic>> login(String username, String password) async {
     try {
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}${ApiConfig.login}'),
         headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password}),
+        body: jsonEncode({'username': username, 'password': password}),
       ).timeout(const Duration(seconds: 30));
 
       return jsonDecode(response.body);
