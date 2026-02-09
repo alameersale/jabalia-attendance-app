@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:math' as math;
 
 import 'providers/auth_provider.dart';
 import 'providers/attendance_provider.dart';
@@ -12,25 +13,25 @@ import 'screens/home_screen.dart';
 import 'services/database_service.dart';
 import 'services/notification_service.dart';
 
-// ألوان بلدية جباليا النزلة
+// ألوان التطبيق - درجات الأزرق
 class AppColors {
-  // الألوان الأساسية
-  static const Color primary = Color(0xFF1A5A4A);        // أخضر داكن
-  static const Color primaryLight = Color(0xFF2D7A66);   // أخضر فاتح
-  static const Color primaryDark = Color(0xFF0F3D32);    // أخضر غامق
+  // الألوان الأساسية - أزرق
+  static const Color primary = Color(0xFF1565C0);        // أزرق متوسط
+  static const Color primaryLight = Color(0xFF42A5F5);   // أزرق فاتح
+  static const Color primaryDark = Color(0xFF0D47A1);    // أزرق داكن
   
-  // اللون الثانوي (الذهبي)
-  static const Color secondary = Color(0xFFC9A227);      // ذهبي
-  static const Color secondaryLight = Color(0xFFE0B93D); // ذهبي فاتح
-  static const Color accent = Color(0xFFD4AF37);         // ذهبي لامع
+  // اللون الثانوي (سماوي)
+  static const Color secondary = Color(0xFF26C6DA);      // سماوي
+  static const Color secondaryLight = Color(0xFF80DEEA); // سماوي فاتح
+  static const Color accent = Color(0xFF00BCD4);         // تركواز
   
   // ألوان الحالة
-  static const Color success = Color(0xFF28A745);
-  static const Color successLight = Color(0xFF34CE57);
+  static const Color success = Color(0xFF2E7D32);
+  static const Color successLight = Color(0xFF4CAF50);
   static const Color warning = Color(0xFFFFC107);
   static const Color warningDark = Color(0xFFE0A800);
-  static const Color danger = Color(0xFFDC3545);
-  static const Color dangerDark = Color(0xFFC82333);
+  static const Color danger = Color(0xFFD32F2F);
+  static const Color dangerDark = Color(0xFFC62828);
   
   // ألوان محايدة
   static const Color gray50 = Color(0xFFF8F9FA);
@@ -66,7 +67,7 @@ void main() async {
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.light,
-        systemNavigationBarColor: AppColors.primary,
+        systemNavigationBarColor: AppColors.primaryDark,
         systemNavigationBarIconBrightness: Brightness.light,
       ),
     );
@@ -80,7 +81,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // استخدام خط Cairo العربي
     final arabicTextTheme = GoogleFonts.cairoTextTheme(
       ThemeData.light().textTheme,
     );
@@ -95,13 +95,11 @@ class MyApp extends StatelessWidget {
         title: 'حضور جباليا',
         debugShowCheckedModeBanner: false,
         
-        // دعم RTL للعربية
         locale: const Locale('ar', 'PS'),
         supportedLocales: const [
           Locale('ar', 'PS'),
         ],
         
-        // إعدادات الثيم الاحترافي - ألوان بلدية جباليا
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
             seedColor: AppColors.primary,
@@ -114,7 +112,6 @@ class MyApp extends StatelessWidget {
           ),
           useMaterial3: true,
           
-          // خط عربي احترافي
           textTheme: arabicTextTheme.copyWith(
             displayLarge: arabicTextTheme.displayLarge?.copyWith(
               fontWeight: FontWeight.bold,
@@ -140,7 +137,6 @@ class MyApp extends StatelessWidget {
             ),
           ),
           
-          // شريط التطبيق
           appBarTheme: AppBarTheme(
             centerTitle: true,
             elevation: 0,
@@ -155,7 +151,6 @@ class MyApp extends StatelessWidget {
             iconTheme: const IconThemeData(color: Colors.white),
           ),
           
-          // تحسين مظهر الأزرار
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
@@ -171,7 +166,6 @@ class MyApp extends StatelessWidget {
             ),
           ),
           
-          // أزرار النص
           textButtonTheme: TextButtonThemeData(
             style: TextButton.styleFrom(
               textStyle: GoogleFonts.cairo(
@@ -181,7 +175,6 @@ class MyApp extends StatelessWidget {
             ),
           ),
           
-          // تحسين مظهر البطاقات
           cardTheme: CardTheme(
             elevation: 4,
             shadowColor: Colors.black.withOpacity(0.1),
@@ -191,7 +184,6 @@ class MyApp extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
           ),
           
-          // تحسين مظهر الحوارات
           dialogTheme: DialogTheme(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(24),
@@ -203,7 +195,6 @@ class MyApp extends StatelessWidget {
             ),
           ),
           
-          // حقول الإدخال
           inputDecorationTheme: InputDecorationTheme(
             filled: true,
             fillColor: AppColors.gray100,
@@ -239,7 +230,6 @@ class MyApp extends StatelessWidget {
             suffixIconColor: AppColors.gray600,
           ),
           
-          // شريط التنقل السفلي
           bottomNavigationBarTheme: BottomNavigationBarThemeData(
             backgroundColor: Colors.white,
             selectedItemColor: AppColors.primary,
@@ -249,7 +239,6 @@ class MyApp extends StatelessWidget {
             elevation: 8,
           ),
           
-          // Snackbar
           snackBarTheme: SnackBarThemeData(
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -261,7 +250,6 @@ class MyApp extends StatelessWidget {
             ),
           ),
           
-          // Floating Action Button
           floatingActionButtonTheme: const FloatingActionButtonThemeData(
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
@@ -269,7 +257,6 @@ class MyApp extends StatelessWidget {
             shape: CircleBorder(),
           ),
           
-          // Chip Theme
           chipTheme: ChipThemeData(
             backgroundColor: AppColors.gray100,
             selectedColor: AppColors.primary.withOpacity(0.2),
@@ -282,21 +269,18 @@ class MyApp extends StatelessWidget {
             ),
           ),
           
-          // Divider
           dividerTheme: const DividerThemeData(
             color: AppColors.gray300,
             thickness: 1,
             space: 1,
           ),
           
-          // Progress Indicator
           progressIndicatorTheme: const ProgressIndicatorThemeData(
             color: AppColors.primary,
             linearTrackColor: AppColors.gray300,
           ),
         ),
         
-        // تعيين اتجاه RTL
         builder: (context, child) {
           return Directionality(
             textDirection: TextDirection.rtl,
@@ -310,8 +294,45 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class AuthWrapper extends StatelessWidget {
+// ============================================
+// شاشة التحميل المتحركة
+// ============================================
+class AuthWrapper extends StatefulWidget {
   const AuthWrapper({super.key});
+
+  @override
+  State<AuthWrapper> createState() => _AuthWrapperState();
+}
+
+class _AuthWrapperState extends State<AuthWrapper> with TickerProviderStateMixin {
+  late AnimationController _pulseController;
+  late AnimationController _rotateController;
+  late Animation<double> _pulseAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat(reverse: true);
+    
+    _rotateController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..repeat();
+    
+    _pulseAnimation = Tween<double>(begin: 0.95, end: 1.05).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    _rotateController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -322,78 +343,118 @@ class AuthWrapper extends StatelessWidget {
             body: Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                   colors: [
-                    AppColors.primary,
-                    AppColors.primaryLight,
-                    AppColors.primaryDark,
+                    Color(0xFF0D47A1),
+                    Color(0xFF1565C0),
+                    Color(0xFF1976D2),
+                    Color(0xFF1E88E5),
                   ],
-                  stops: [0.0, 0.5, 1.0],
+                  stops: [0.0, 0.3, 0.6, 1.0],
                 ),
               ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // شعار متحرك
-                    Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(30),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 30,
-                            offset: const Offset(0, 15),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(30),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Image.asset(
-                            'assets/images/logo.png',
-                            fit: BoxFit.contain,
+              child: Stack(
+                children: [
+                  // فقاعات خلفية متحركة
+                  ...List.generate(8, (index) => _buildFloatingBubble(index)),
+                  
+                  // المحتوى الرئيسي
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // شعار متحرك مع نبضات
+                        ScaleTransition(
+                          scale: _pulseAnimation,
+                          child: Container(
+                            width: 120,
+                            height: 120,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(30),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.primaryLight.withOpacity(0.4),
+                                  blurRadius: 40,
+                                  spreadRadius: 5,
+                                  offset: const Offset(0, 10),
+                                ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(30),
+                              child: Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Image.asset(
+                                  'assets/images/logo.png',
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                        const SizedBox(height: 40),
+                        
+                        // مؤشر تحميل دائري متحرك
+                        AnimatedBuilder(
+                          animation: _rotateController,
+                          builder: (context, child) {
+                            return Transform.rotate(
+                              angle: _rotateController.value * 2 * math.pi,
+                              child: Container(
+                                width: 50,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.3),
+                                    width: 3,
+                                  ),
+                                ),
+                                child: Stack(
+                                  children: [
+                                    Positioned(
+                                      top: 0,
+                                      left: 20,
+                                      child: Container(
+                                        width: 10,
+                                        height: 10,
+                                        decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 30),
+                        
+                        // نص التحميل
+                        Text(
+                          'جاري التحميل...',
+                          style: GoogleFonts.cairo(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'بلدية جباليا النزلة',
+                          style: GoogleFonts.cairo(
+                            color: Colors.white.withOpacity(0.7),
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 32),
-                    
-                    // مؤشر التحميل
-                    const SizedBox(
-                      width: 40,
-                      height: 40,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 3,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    
-                    // نص التحميل
-                    Text(
-                      'جاري التحميل...',
-                      style: GoogleFonts.cairo(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'بلدية جباليا النزلة',
-                      style: GoogleFonts.cairo(
-                        color: Colors.white.withOpacity(0.7),
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           );
@@ -405,6 +466,38 @@ class AuthWrapper extends StatelessWidget {
         
         return const LoginScreen();
       },
+    );
+  }
+
+  Widget _buildFloatingBubble(int index) {
+    final random = math.Random(index);
+    final size = 20.0 + random.nextDouble() * 60;
+    final left = random.nextDouble() * 400;
+    final top = random.nextDouble() * 800;
+    final opacity = 0.03 + random.nextDouble() * 0.08;
+    
+    return Positioned(
+      left: left,
+      top: top,
+      child: AnimatedBuilder(
+        animation: _pulseController,
+        builder: (context, child) {
+          return Transform.translate(
+            offset: Offset(
+              math.sin(_pulseController.value * math.pi * 2 + index) * 10,
+              math.cos(_pulseController.value * math.pi * 2 + index) * 15,
+            ),
+            child: Container(
+              width: size,
+              height: size,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withOpacity(opacity),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
