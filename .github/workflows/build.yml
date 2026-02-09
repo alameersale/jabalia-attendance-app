@@ -31,10 +31,12 @@ jobs:
       
       - name: Create local.properties
         run: |
-          echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
-          echo "flutter.sdk=$FLUTTER_ROOT" >> android/local.properties
-          echo "flutter.versionCode=1" >> android/local.properties
-          echo "flutter.versionName=1.0.0" >> android/local.properties
+          cd android
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
+          echo "flutter.sdk=$FLUTTER_ROOT" >> local.properties
+          echo "flutter.versionCode=1" >> local.properties
+          echo "flutter.versionName=1.0.0" >> local.properties
+          cat local.properties
       
       - name: Get dependencies
         run: flutter pub get
@@ -42,9 +44,14 @@ jobs:
       - name: Build APK
         run: flutter build apk --release --no-tree-shake-icons
       
+      - name: List build outputs
+        run: |
+          ls -la build/app/outputs/flutter-apk/ || echo "APK directory not found"
+      
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: jabalia-attendance-apk
           path: build/app/outputs/flutter-apk/app-release.apk
           retention-days: 30
+          if-no-files-found: error
