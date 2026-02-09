@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../providers/auth_provider.dart';
+import '../main.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -86,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               ),
             ],
           ),
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: AppColors.danger,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           margin: const EdgeInsets.all(16),
@@ -110,9 +111,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0xFF0D9488),
-              Color(0xFF0F766E),
-              Color(0xFF115E59),
+              AppColors.primary,
+              AppColors.primaryLight,
+              AppColors.primaryDark,
             ],
             stops: [0.0, 0.5, 1.0],
           ),
@@ -161,8 +162,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         Hero(
           tag: 'app_logo',
           child: Container(
-            width: isSmallScreen ? 90 : 110,
-            height: isSmallScreen ? 90 : 110,
+            width: isSmallScreen ? 100 : 120,
+            height: isSmallScreen ? 100 : 120,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(28),
@@ -174,34 +175,46 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 ),
               ],
             ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Icon(
-                  Icons.access_time_filled_rounded,
-                  size: isSmallScreen ? 55 : 65,
-                  color: const Color(0xFF0D9488),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(28),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Image.network(
+                  'https://jabalia.ps/social-media/logo.png',
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Icon(
+                          Icons.access_time_filled_rounded,
+                          size: isSmallScreen ? 55 : 65,
+                          color: AppColors.primary,
+                        ),
+                        // شارة صغيرة
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              color: AppColors.success,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                            ),
+                            child: const Icon(
+                              Icons.check,
+                              size: 14,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
-                // شارة صغيرة
-                Positioned(
-                  bottom: 8,
-                  right: 8,
-                  child: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF10B981),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
-                    ),
-                    child: const Icon(
-                      Icons.check,
-                      size: 14,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -219,12 +232,16 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         ),
         const SizedBox(height: 8),
         
-        // العنوان الفرعي
+        // العنوان الفرعي - مع اللون الذهبي
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.15),
+            color: AppColors.secondary.withOpacity(0.2),
             borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: AppColors.secondary.withOpacity(0.5),
+              width: 1,
+            ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -232,15 +249,15 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               Icon(
                 Icons.location_city_rounded,
                 size: 18,
-                color: Colors.white.withOpacity(0.9),
+                color: AppColors.secondary,
               ),
               const SizedBox(width: 8),
               Text(
                 'بلدية جباليا النزلة',
                 style: GoogleFonts.cairo(
                   fontSize: 14,
-                  color: Colors.white.withOpacity(0.9),
-                  fontWeight: FontWeight.w500,
+                  color: AppColors.secondary,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -277,12 +294,12 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0D9488).withOpacity(0.1),
+                    color: AppColors.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
                     Icons.login_rounded,
-                    color: Color(0xFF0D9488),
+                    color: AppColors.primary,
                     size: 24,
                   ),
                 ),
@@ -292,7 +309,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   style: GoogleFonts.cairo(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF1E293B),
+                    color: AppColors.gray900,
                   ),
                 ),
               ],
@@ -305,13 +322,13 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    const Color(0xFF0D9488).withOpacity(0.08),
-                    const Color(0xFF14B8A6).withOpacity(0.05),
+                    AppColors.primary.withOpacity(0.08),
+                    AppColors.primaryLight.withOpacity(0.05),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: const Color(0xFF0D9488).withOpacity(0.2),
+                  color: AppColors.primary.withOpacity(0.2),
                 ),
               ),
               child: Row(
@@ -319,12 +336,12 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0D9488).withOpacity(0.15),
+                      color: AppColors.primary.withOpacity(0.15),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.info_outline_rounded,
-                      color: Color(0xFF0D9488),
+                      color: AppColors.primary,
                       size: 18,
                     ),
                   ),
@@ -333,7 +350,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                     child: Text(
                       'سجل دخول بالبريد الإلكتروني أو رقم الجوال أو رقم الهوية',
                       style: GoogleFonts.cairo(
-                        color: const Color(0xFF0F766E),
+                        color: AppColors.primaryDark,
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                         height: 1.4,
@@ -351,7 +368,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               style: GoogleFonts.cairo(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF475569),
+                color: AppColors.gray700,
               ),
             ),
             const SizedBox(height: 8),
@@ -362,43 +379,43 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               textAlign: TextAlign.right,
               style: GoogleFonts.cairo(
                 fontSize: 16,
-                color: const Color(0xFF1E293B),
+                color: AppColors.gray900,
               ),
               decoration: InputDecoration(
                 hintText: 'البريد / الجوال / رقم الهوية',
                 hintStyle: GoogleFonts.cairo(
-                  color: const Color(0xFF94A3B8),
+                  color: AppColors.gray500,
                 ),
                 prefixIcon: Container(
                   margin: const EdgeInsets.all(12),
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0D9488).withOpacity(0.1),
+                    color: AppColors.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
                     Icons.person_outline_rounded,
-                    color: Color(0xFF0D9488),
+                    color: AppColors.primary,
                     size: 22,
                   ),
                 ),
                 filled: true,
-                fillColor: const Color(0xFFF8FAFC),
+                fillColor: AppColors.gray50,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  borderSide: const BorderSide(color: AppColors.gray300),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  borderSide: const BorderSide(color: AppColors.gray300),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Color(0xFF0D9488), width: 2),
+                  borderSide: const BorderSide(color: AppColors.primary, width: 2),
                 ),
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Color(0xFFDC2626)),
+                  borderSide: const BorderSide(color: AppColors.danger),
                 ),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
               ),
@@ -417,7 +434,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               style: GoogleFonts.cairo(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF475569),
+                color: AppColors.gray700,
               ),
             ),
             const SizedBox(height: 8),
@@ -428,24 +445,24 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               textAlign: TextAlign.right,
               style: GoogleFonts.cairo(
                 fontSize: 16,
-                color: const Color(0xFF1E293B),
+                color: AppColors.gray900,
               ),
               decoration: InputDecoration(
                 hintText: '••••••••',
                 hintStyle: GoogleFonts.cairo(
-                  color: const Color(0xFF94A3B8),
+                  color: AppColors.gray500,
                   letterSpacing: 3,
                 ),
                 prefixIcon: Container(
                   margin: const EdgeInsets.all(12),
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0D9488).withOpacity(0.1),
+                    color: AppColors.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
                     Icons.lock_outline_rounded,
-                    color: Color(0xFF0D9488),
+                    color: AppColors.primary,
                     size: 22,
                   ),
                 ),
@@ -454,7 +471,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                     _obscurePassword
                         ? Icons.visibility_off_outlined
                         : Icons.visibility_outlined,
-                    color: const Color(0xFF64748B),
+                    color: AppColors.gray600,
                   ),
                   onPressed: () {
                     setState(() {
@@ -463,22 +480,22 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   },
                 ),
                 filled: true,
-                fillColor: const Color(0xFFF8FAFC),
+                fillColor: AppColors.gray50,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  borderSide: const BorderSide(color: AppColors.gray300),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  borderSide: const BorderSide(color: AppColors.gray300),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Color(0xFF0D9488), width: 2),
+                  borderSide: const BorderSide(color: AppColors.primary, width: 2),
                 ),
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Color(0xFFDC2626)),
+                  borderSide: const BorderSide(color: AppColors.danger),
                 ),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
               ),
@@ -501,11 +518,11 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   child: ElevatedButton(
                     onPressed: auth.isLoading ? null : _login,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0D9488),
+                      backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
-                      disabledBackgroundColor: const Color(0xFF0D9488).withOpacity(0.6),
+                      disabledBackgroundColor: AppColors.primary.withOpacity(0.6),
                       elevation: auth.isLoading ? 0 : 4,
-                      shadowColor: const Color(0xFF0D9488).withOpacity(0.4),
+                      shadowColor: AppColors.primary.withOpacity(0.4),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -572,13 +589,13 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               Icon(
                 Icons.verified_rounded,
                 size: 16,
-                color: Colors.white.withOpacity(0.8),
+                color: AppColors.secondary,
               ),
               const SizedBox(width: 6),
               Text(
-                'الإصدار 1.0.1',
+                'الإصدار 2.0.0',
                 style: GoogleFonts.cairo(
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white.withOpacity(0.9),
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                 ),

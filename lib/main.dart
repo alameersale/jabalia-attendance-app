@@ -12,6 +12,39 @@ import 'screens/home_screen.dart';
 import 'services/database_service.dart';
 import 'services/notification_service.dart';
 
+// ألوان بلدية جباليا النزلة
+class AppColors {
+  // الألوان الأساسية
+  static const Color primary = Color(0xFF1A5A4A);        // أخضر داكن
+  static const Color primaryLight = Color(0xFF2D7A66);   // أخضر فاتح
+  static const Color primaryDark = Color(0xFF0F3D32);    // أخضر غامق
+  
+  // اللون الثانوي (الذهبي)
+  static const Color secondary = Color(0xFFC9A227);      // ذهبي
+  static const Color secondaryLight = Color(0xFFE0B93D); // ذهبي فاتح
+  static const Color accent = Color(0xFFD4AF37);         // ذهبي لامع
+  
+  // ألوان الحالة
+  static const Color success = Color(0xFF28A745);
+  static const Color successLight = Color(0xFF34CE57);
+  static const Color warning = Color(0xFFFFC107);
+  static const Color warningDark = Color(0xFFE0A800);
+  static const Color danger = Color(0xFFDC3545);
+  static const Color dangerDark = Color(0xFFC82333);
+  
+  // ألوان محايدة
+  static const Color gray50 = Color(0xFFF8F9FA);
+  static const Color gray100 = Color(0xFFF1F3F5);
+  static const Color gray200 = Color(0xFFE9ECEF);
+  static const Color gray300 = Color(0xFFDEE2E6);
+  static const Color gray400 = Color(0xFFCED4DA);
+  static const Color gray500 = Color(0xFFADB5BD);
+  static const Color gray600 = Color(0xFF6C757D);
+  static const Color gray700 = Color(0xFF495057);
+  static const Color gray800 = Color(0xFF343A40);
+  static const Color gray900 = Color(0xFF212529);
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
@@ -33,7 +66,7 @@ void main() async {
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.light,
-        systemNavigationBarColor: Color(0xFF0D9488),
+        systemNavigationBarColor: AppColors.primary,
         systemNavigationBarIconBrightness: Brightness.light,
       ),
     );
@@ -68,16 +101,16 @@ class MyApp extends StatelessWidget {
           Locale('ar', 'PS'),
         ],
         
-        // إعدادات الثيم الاحترافي
+        // إعدادات الثيم الاحترافي - ألوان بلدية جباليا
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF0D9488),
+            seedColor: AppColors.primary,
             brightness: Brightness.light,
-            primary: const Color(0xFF0D9488),
-            secondary: const Color(0xFF14B8A6),
+            primary: AppColors.primary,
+            secondary: AppColors.secondary,
             surface: Colors.white,
-            background: const Color(0xFFF8FAFC),
-            error: const Color(0xFFDC2626),
+            background: AppColors.gray50,
+            error: AppColors.danger,
           ),
           useMaterial3: true,
           
@@ -85,25 +118,25 @@ class MyApp extends StatelessWidget {
           textTheme: arabicTextTheme.copyWith(
             displayLarge: arabicTextTheme.displayLarge?.copyWith(
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF1E293B),
+              color: AppColors.gray900,
             ),
             headlineLarge: arabicTextTheme.headlineLarge?.copyWith(
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF1E293B),
+              color: AppColors.gray900,
             ),
             headlineMedium: arabicTextTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF1E293B),
+              color: AppColors.gray900,
             ),
             titleLarge: arabicTextTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF1E293B),
+              color: AppColors.gray900,
             ),
             bodyLarge: arabicTextTheme.bodyLarge?.copyWith(
-              color: const Color(0xFF475569),
+              color: AppColors.gray700,
             ),
             bodyMedium: arabicTextTheme.bodyMedium?.copyWith(
-              color: const Color(0xFF64748B),
+              color: AppColors.gray600,
             ),
           ),
           
@@ -112,7 +145,7 @@ class MyApp extends StatelessWidget {
             centerTitle: true,
             elevation: 0,
             scrolledUnderElevation: 2,
-            backgroundColor: const Color(0xFF0D9488),
+            backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
             titleTextStyle: GoogleFonts.cairo(
               fontSize: 20,
@@ -130,7 +163,7 @@ class MyApp extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
               ),
               elevation: 2,
-              shadowColor: const Color(0xFF0D9488).withOpacity(0.4),
+              shadowColor: AppColors.primary.withOpacity(0.4),
               textStyle: GoogleFonts.cairo(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -166,51 +199,51 @@ class MyApp extends StatelessWidget {
             titleTextStyle: GoogleFonts.cairo(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF1E293B),
+              color: AppColors.gray900,
             ),
           ),
           
           // حقول الإدخال
           inputDecorationTheme: InputDecorationTheme(
             filled: true,
-            fillColor: const Color(0xFFF1F5F9),
+            fillColor: AppColors.gray100,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide.none,
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1),
+              borderSide: const BorderSide(color: AppColors.gray300, width: 1),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(color: Color(0xFF0D9488), width: 2),
+              borderSide: const BorderSide(color: AppColors.primary, width: 2),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(color: Color(0xFFDC2626), width: 1),
+              borderSide: const BorderSide(color: AppColors.danger, width: 1),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(color: Color(0xFFDC2626), width: 2),
+              borderSide: const BorderSide(color: AppColors.danger, width: 2),
             ),
             contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
             labelStyle: GoogleFonts.cairo(
-              color: const Color(0xFF64748B),
+              color: AppColors.gray600,
               fontWeight: FontWeight.w500,
             ),
             hintStyle: GoogleFonts.cairo(
-              color: const Color(0xFF94A3B8),
+              color: AppColors.gray500,
             ),
-            prefixIconColor: const Color(0xFF64748B),
-            suffixIconColor: const Color(0xFF64748B),
+            prefixIconColor: AppColors.gray600,
+            suffixIconColor: AppColors.gray600,
           ),
           
           // شريط التنقل السفلي
           bottomNavigationBarTheme: BottomNavigationBarThemeData(
             backgroundColor: Colors.white,
-            selectedItemColor: const Color(0xFF0D9488),
-            unselectedItemColor: const Color(0xFF94A3B8),
+            selectedItemColor: AppColors.primary,
+            unselectedItemColor: AppColors.gray500,
             selectedLabelStyle: GoogleFonts.cairo(fontWeight: FontWeight.w600),
             unselectedLabelStyle: GoogleFonts.cairo(),
             elevation: 8,
@@ -230,7 +263,7 @@ class MyApp extends StatelessWidget {
           
           // Floating Action Button
           floatingActionButtonTheme: const FloatingActionButtonThemeData(
-            backgroundColor: Color(0xFF0D9488),
+            backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
             elevation: 6,
             shape: CircleBorder(),
@@ -238,10 +271,10 @@ class MyApp extends StatelessWidget {
           
           // Chip Theme
           chipTheme: ChipThemeData(
-            backgroundColor: const Color(0xFFF1F5F9),
-            selectedColor: const Color(0xFF0D9488).withOpacity(0.2),
+            backgroundColor: AppColors.gray100,
+            selectedColor: AppColors.primary.withOpacity(0.2),
             labelStyle: GoogleFonts.cairo(
-              color: const Color(0xFF475569),
+              color: AppColors.gray700,
               fontWeight: FontWeight.w500,
             ),
             shape: RoundedRectangleBorder(
@@ -251,15 +284,15 @@ class MyApp extends StatelessWidget {
           
           // Divider
           dividerTheme: const DividerThemeData(
-            color: Color(0xFFE2E8F0),
+            color: AppColors.gray300,
             thickness: 1,
             space: 1,
           ),
           
           // Progress Indicator
           progressIndicatorTheme: const ProgressIndicatorThemeData(
-            color: Color(0xFF0D9488),
-            linearTrackColor: Color(0xFFE2E8F0),
+            color: AppColors.primary,
+            linearTrackColor: AppColors.gray300,
           ),
         ),
         
@@ -292,9 +325,9 @@ class AuthWrapper extends StatelessWidget {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Color(0xFF0D9488),
-                    Color(0xFF0F766E),
-                    Color(0xFF115E59),
+                    AppColors.primary,
+                    AppColors.primaryLight,
+                    AppColors.primaryDark,
                   ],
                   stops: [0.0, 0.5, 1.0],
                 ),
@@ -318,10 +351,19 @@ class AuthWrapper extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: const Icon(
-                        Icons.access_time_filled_rounded,
-                        size: 70,
-                        color: Color(0xFF0D9488),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(30),
+                        child: Image.network(
+                          'https://jabalia.ps/social-media/logo.png',
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.access_time_filled_rounded,
+                              size: 70,
+                              color: AppColors.primary,
+                            );
+                          },
+                        ),
                       ),
                     ),
                     const SizedBox(height: 32),
