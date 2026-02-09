@@ -33,8 +33,7 @@ dependencies:
   # Date/Time
   intl: ^0.18.1
   
-  # Sound & Vibration
-  audioplayers: ^5.2.1
+  # Vibration
   vibration: ^1.8.4
   
   # Local Notifications
@@ -47,6 +46,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  
-  assets:
-    - assets/sounds/

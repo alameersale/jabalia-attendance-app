@@ -70,17 +70,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
+        title: const Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(
-              'assets/sounds/icon.png',
-              width: 32,
-              height: 32,
-              errorBuilder: (_, __, ___) => const Icon(Icons.access_time, size: 28),
-            ),
-            const SizedBox(width: 8),
-            const Text('الحضور والانصراف'),
+            Icon(Icons.access_time, size: 28),
+            SizedBox(width: 8),
+            Text('الحضور والانصراف'),
           ],
         ),
         backgroundColor: const Color(0xFF0D9488),
