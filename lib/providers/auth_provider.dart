@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 
 class AuthProvider extends ChangeNotifier {
@@ -20,10 +20,10 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> _checkAuth() async {
-    final box = Hive.box('settings');
-    final token = box.get('token');
-    final name = box.get('userName');
-    final email = box.get('userEmail');
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final name = prefs.getString('userName');
+    final email = prefs.getString('userEmail');
 
     if (token != null) {
       _isAuthenticated = true;
@@ -45,12 +45,12 @@ class AuthProvider extends ChangeNotifier {
 
       if (result['success'] == true) {
         final data = result['data'];
-        final box = Hive.box('settings');
+        final prefs = await SharedPreferences.getInstance();
         
-        await box.put('token', data['token']);
-        await box.put('userName', data['user']['name']);
-        await box.put('userEmail', data['user']['email']);
-        await box.put('userId', data['user']['id']);
+        await prefs.setString('token', data['token']);
+        await prefs.setString('userName', data['user']['name']);
+        await prefs.setString('userEmail', data['user']['email']);
+        await prefs.setInt('userId', data['user']['id']);
 
         _isAuthenticated = true;
         _userName = data['user']['name'];
@@ -75,11 +75,11 @@ class AuthProvider extends ChangeNotifier {
   Future<void> logout() async {
     await ApiService.instance.logout();
     
-    final box = Hive.box('settings');
-    await box.delete('token');
-    await box.delete('userName');
-    await box.delete('userEmail');
-    await box.delete('userId');
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+    await prefs.remove('userName');
+    await prefs.remove('userEmail');
+    await prefs.remove('userId');
 
     _isAuthenticated = false;
     _userName = null;

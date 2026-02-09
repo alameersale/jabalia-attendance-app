@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:hive/hive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../config/api_config.dart';
 import '../models/employee.dart';
 import '../models/attendance_record.dart';
@@ -9,13 +9,19 @@ class ApiService {
   static final ApiService instance = ApiService._init();
   ApiService._init();
 
-  String? get _token => Hive.box('settings').get('token');
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
 
-  Map<String, String> get _headers => {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    if (_token != null) 'Authorization': 'Bearer $_token',
-  };
+  Future<Map<String, String>> _getHeaders() async {
+    final token = await _getToken();
+    return {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
+  }
 
   // ==================== Auth ====================
 
@@ -35,9 +41,10 @@ class ApiService {
 
   Future<void> logout() async {
     try {
+      final headers = await _getHeaders();
       await http.post(
         Uri.parse('${ApiConfig.baseUrl}${ApiConfig.logout}'),
-        headers: _headers,
+        headers: headers,
       ).timeout(const Duration(seconds: 10));
     } catch (e) {
       // Ignore logout errors
@@ -53,9 +60,10 @@ class ApiService {
         url += '?search=$search';
       }
 
+      final headers = await _getHeaders();
       final response = await http.get(
         Uri.parse(url),
-        headers: _headers,
+        headers: headers,
       ).timeout(const Duration(seconds: 30));
 
       final data = jsonDecode(response.body);
@@ -75,9 +83,10 @@ class ApiService {
 
   Future<Map<String, dynamic>> getCurrentSession() async {
     try {
+      final headers = await _getHeaders();
       final response = await http.get(
         Uri.parse('${ApiConfig.baseUrl}${ApiConfig.session}'),
-        headers: _headers,
+        headers: headers,
       ).timeout(const Duration(seconds: 30));
 
       return jsonDecode(response.body);
@@ -88,9 +97,10 @@ class ApiService {
 
   Future<Map<String, dynamic>> createSession(String startTime, String sessionType) async {
     try {
+      final headers = await _getHeaders();
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}${ApiConfig.session}'),
-        headers: _headers,
+        headers: headers,
         body: jsonEncode({
           'start_time': startTime,
           'session_type': sessionType,
@@ -105,9 +115,10 @@ class ApiService {
 
   Future<Map<String, dynamic>> closeSession() async {
     try {
+      final headers = await _getHeaders();
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}${ApiConfig.closeSession}'),
-        headers: _headers,
+        headers: headers,
       ).timeout(const Duration(seconds: 30));
 
       return jsonDecode(response.body);
@@ -120,9 +131,10 @@ class ApiService {
 
   Future<Map<String, dynamic>> markAttendance(int userId, {bool isEarly = false}) async {
     try {
+      final headers = await _getHeaders();
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}${ApiConfig.markAttendance}'),
-        headers: _headers,
+        headers: headers,
         body: jsonEncode({
           'user_id': userId,
           'is_early': isEarly,
@@ -137,9 +149,10 @@ class ApiService {
 
   Future<Map<String, dynamic>> syncAttendances(List<AttendanceRecord> records) async {
     try {
+      final headers = await _getHeaders();
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}${ApiConfig.syncAttendances}'),
-        headers: _headers,
+        headers: headers,
         body: jsonEncode({
           'records': records.map((r) => r.toSyncJson()).toList(),
         }),
@@ -153,9 +166,10 @@ class ApiService {
 
   Future<Map<String, dynamic>> cancelAttendance(int userId) async {
     try {
+      final headers = await _getHeaders();
       final response = await http.delete(
         Uri.parse('${ApiConfig.baseUrl}${ApiConfig.cancelAttendance(userId)}'),
-        headers: _headers,
+        headers: headers,
       ).timeout(const Duration(seconds: 30));
 
       return jsonDecode(response.body);
@@ -168,9 +182,10 @@ class ApiService {
 
   Future<bool> checkConnection() async {
     try {
+      final headers = await _getHeaders();
       final response = await http.get(
         Uri.parse('${ApiConfig.baseUrl}${ApiConfig.session}'),
-        headers: _headers,
+        headers: headers,
       ).timeout(const Duration(seconds: 5));
       
       return response.statusCode == 200;

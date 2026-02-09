@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'providers/auth_provider.dart';
 import 'providers/attendance_provider.dart';
@@ -13,11 +11,6 @@ import 'services/database_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Initialize Hive
-  await Hive.initFlutter();
-  await Hive.openBox('settings');
-  await Hive.openBox('offline_records');
   
   // Initialize SQLite
   await DatabaseService.instance.database;
@@ -46,24 +39,12 @@ class MyApp extends StatelessWidget {
         title: 'الحضور والانصراف',
         debugShowCheckedModeBanner: false,
         
-        // RTL Support
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale('ar', 'SA'),
-        ],
-        locale: const Locale('ar', 'SA'),
-        
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
             seedColor: const Color(0xFF0D9488), // Teal
             brightness: Brightness.light,
           ),
           useMaterial3: true,
-          fontFamily: 'Cairo',
           appBarTheme: const AppBarTheme(
             centerTitle: true,
             elevation: 0,

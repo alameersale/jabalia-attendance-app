@@ -9,7 +9,7 @@ class SyncProvider extends ChangeNotifier {
   int _pendingCount = 0;
   String? _lastSyncTime;
   String? _syncError;
-  StreamSubscription? _connectivitySubscription;
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
 
   bool get isSyncing => _isSyncing;
   int get pendingCount => _pendingCount;
@@ -27,8 +27,10 @@ class SyncProvider extends ChangeNotifier {
   }
 
   void _startConnectivityListener() {
-    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((result) {
-      if (result != ConnectivityResult.none) {
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((results) {
+      // Check if any result is not "none"
+      final hasConnection = results.any((result) => result != ConnectivityResult.none);
+      if (hasConnection) {
         // اتصال متاح - محاولة المزامنة
         syncPendingRecords();
       }
