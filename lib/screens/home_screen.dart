@@ -153,16 +153,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 borderRadius: BorderRadius.circular(25),
                 child: Padding(
                   padding: const EdgeInsets.all(10),
-                  child: Image.network(
-                    'https://jabalia.ps/social-media/logo.png',
+                  child: Image.asset(
+                    'assets/images/logo.png',
                     fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Icon(
-                        Icons.access_time_filled_rounded,
-                        size: 55,
-                        color: AppColors.primary,
-                      );
-                    },
                   ),
                 ),
               ),
@@ -237,16 +230,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         borderRadius: BorderRadius.circular(16),
                         child: Padding(
                           padding: const EdgeInsets.all(6),
-                          child: Image.network(
-                            'https://jabalia.ps/social-media/logo.png',
+                          child: Image.asset(
+                            'assets/images/logo.png',
                             fit: BoxFit.contain,
-                            errorBuilder: (context, error, stackTrace) {
-                              return const Icon(
-                                Icons.access_time_filled_rounded,
-                                color: AppColors.primary,
-                                size: 32,
-                              );
-                            },
                           ),
                         ),
                       ),

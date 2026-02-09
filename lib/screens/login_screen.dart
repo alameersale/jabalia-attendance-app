@@ -162,8 +162,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         Hero(
           tag: 'app_logo',
           child: Container(
-            width: isSmallScreen ? 100 : 120,
-            height: isSmallScreen ? 100 : 120,
+            width: isSmallScreen ? 80 : 100,
+            height: isSmallScreen ? 80 : 100,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(28),
@@ -179,52 +179,21 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               borderRadius: BorderRadius.circular(28),
               child: Padding(
                 padding: const EdgeInsets.all(12),
-                child: Image.network(
-                  'https://jabalia.ps/social-media/logo.png',
+                child: Image.asset(
+                  'assets/images/logo.png',
                   fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Icon(
-                          Icons.access_time_filled_rounded,
-                          size: isSmallScreen ? 55 : 65,
-                          color: AppColors.primary,
-                        ),
-                        // شارة صغيرة
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            width: 24,
-                            height: 24,
-                            decoration: BoxDecoration(
-                              color: AppColors.success,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2),
-                            ),
-                            child: const Icon(
-                              Icons.check,
-                              size: 14,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
                 ),
               ),
             ),
           ),
         ),
-        SizedBox(height: isSmallScreen ? 16 : 24),
+        SizedBox(height: isSmallScreen ? 10 : 16),
         
         // العنوان الرئيسي
         Text(
           'الحضور والانصراف',
           style: GoogleFonts.cairo(
-            fontSize: isSmallScreen ? 26 : 32,
+            fontSize: isSmallScreen ? 22 : 28,
             fontWeight: FontWeight.bold,
             color: Colors.white,
             letterSpacing: 0.5,
@@ -271,7 +240,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     return Container(
       width: double.infinity,
       constraints: const BoxConstraints(maxWidth: 400),
-      padding: EdgeInsets.all(isSmallScreen ? 20 : 28),
+      padding: EdgeInsets.all(isSmallScreen ? 16 : 24),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(28),
@@ -314,11 +283,11 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             
             // معلومات الدخول
             Container(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -360,7 +329,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             
             // حقل اسم المستخدم
             Text(
@@ -387,8 +356,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   color: AppColors.gray500,
                 ),
                 prefixIcon: Container(
-                  margin: const EdgeInsets.all(12),
-                  padding: const EdgeInsets.all(8),
+                  margin: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(10),
@@ -396,28 +365,28 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   child: const Icon(
                     Icons.person_outline_rounded,
                     color: AppColors.primary,
-                    size: 22,
+                    size: 20,
                   ),
                 ),
                 filled: true,
                 fillColor: AppColors.gray50,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(14),
                   borderSide: const BorderSide(color: AppColors.gray300),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(14),
                   borderSide: const BorderSide(color: AppColors.gray300),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(14),
                   borderSide: const BorderSide(color: AppColors.primary, width: 2),
                 ),
                 errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(14),
                   borderSide: const BorderSide(color: AppColors.danger),
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -426,7 +395,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 return null;
               },
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 14),
 
             // حقل كلمة المرور
             Text(
@@ -454,8 +423,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   letterSpacing: 3,
                 ),
                 prefixIcon: Container(
-                  margin: const EdgeInsets.all(12),
-                  padding: const EdgeInsets.all(8),
+                  margin: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(10),
@@ -463,7 +432,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   child: const Icon(
                     Icons.lock_outline_rounded,
                     color: AppColors.primary,
-                    size: 22,
+                    size: 20,
                   ),
                 ),
                 suffixIcon: IconButton(
@@ -482,22 +451,22 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 filled: true,
                 fillColor: AppColors.gray50,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(14),
                   borderSide: const BorderSide(color: AppColors.gray300),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(14),
                   borderSide: const BorderSide(color: AppColors.gray300),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(14),
                   borderSide: const BorderSide(color: AppColors.primary, width: 2),
                 ),
                 errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(14),
                   borderSide: const BorderSide(color: AppColors.danger),
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -507,14 +476,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               },
               onFieldSubmitted: (_) => _login(),
             ),
-            const SizedBox(height: 28),
+            const SizedBox(height: 20),
 
             // زر تسجيل الدخول
             Consumer<AuthProvider>(
               builder: (context, auth, _) {
                 return SizedBox(
                   width: double.infinity,
-                  height: 58,
+                  height: 52,
                   child: ElevatedButton(
                     onPressed: auth.isLoading ? null : _login,
                     style: ElevatedButton.styleFrom(
@@ -593,7 +562,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               ),
               const SizedBox(width: 6),
               Text(
-                'الإصدار 2.0.0',
+                'الإصدار 2.1.0',
                 style: GoogleFonts.cairo(
                   color: Colors.white.withOpacity(0.9),
                   fontSize: 12,

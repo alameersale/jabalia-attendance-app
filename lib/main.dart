@@ -353,16 +353,12 @@ class AuthWrapper extends StatelessWidget {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(30),
-                        child: Image.network(
-                          'https://jabalia.ps/social-media/logo.png',
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(
-                              Icons.access_time_filled_rounded,
-                              size: 70,
-                              color: AppColors.primary,
-                            );
-                          },
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Image.asset(
+                            'assets/images/logo.png',
+                            fit: BoxFit.contain,
+                          ),
                         ),
                       ),
                     ),
