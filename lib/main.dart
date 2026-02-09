@@ -74,18 +74,11 @@ class MyApp extends StatelessWidget {
             ),
           ),
           // تحسين مظهر البطاقات
-          cardTheme: CardThemeData(
+          cardTheme: const CardTheme(
             elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
           ),
           // تحسين مظهر الحوارات
-          dialogTheme: DialogThemeData(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-          ),
+          dialogTheme: const DialogTheme(),
         ),
         
         home: const AuthWrapper(),
