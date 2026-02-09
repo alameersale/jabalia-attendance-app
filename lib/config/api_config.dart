@@ -7,6 +7,7 @@ class ApiConfig {
   static const String logout = '/attendance/logout';
   static const String employees = '/attendance/employees';
   static const String session = '/attendance/session';
+  static const String createSession = '/attendance/session/create';
   static const String closeSession = '/attendance/session/close';
   static const String markAttendance = '/attendance/mark';
   static const String syncAttendances = '/attendance/sync';

@@ -3,7 +3,7 @@ description: تطبيق الحضور والانصراف - بلدية جبالي�
 
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.0.1+2
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -38,6 +38,9 @@ dependencies:
   
   # Local Notifications
   flutter_local_notifications: ^16.3.0
+  
+  # Google Fonts for Arabic
+  google_fonts: ^6.1.0
 
 dev_dependencies:
   flutter_test:

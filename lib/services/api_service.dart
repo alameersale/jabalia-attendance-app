@@ -99,7 +99,7 @@ class ApiService {
     try {
       final headers = await _getHeaders();
       final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}${ApiConfig.session}'),
+        Uri.parse('${ApiConfig.baseUrl}${ApiConfig.createSession}'),
         headers: headers,
         body: jsonEncode({
           'start_time': startTime,
