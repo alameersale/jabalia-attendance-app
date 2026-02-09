@@ -3,6 +3,7 @@ import '../models/employee.dart';
 import '../models/attendance_record.dart';
 import '../services/api_service.dart';
 import '../services/database_service.dart';
+import '../services/notification_service.dart';
 
 class AttendanceProvider extends ChangeNotifier {
   List<Employee> _employees = [];
@@ -10,6 +11,7 @@ class AttendanceProvider extends ChangeNotifier {
   Map<String, dynamic>? _currentSession;
   bool _isLoading = false;
   bool _isOnline = true;
+  bool _wasOnline = true; // لتتبع تغير حالة الاتصال
   String? _error;
   String _searchQuery = '';
 
@@ -27,6 +29,8 @@ class AttendanceProvider extends ChangeNotifier {
 
   int get presentCount => _todayRecords.length;
 
+  final NotificationService _notificationService = NotificationService.instance;
+
   // تحميل البيانات
   Future<void> loadData() async {
     _isLoading = true;
@@ -34,7 +38,18 @@ class AttendanceProvider extends ChangeNotifier {
 
     try {
       // فحص الاتصال
+      final wasOnlineBefore = _isOnline;
       _isOnline = await ApiService.instance.checkConnection();
+      
+      // إشعار بتغير حالة الاتصال
+      if (wasOnlineBefore != _isOnline) {
+        if (_isOnline) {
+          await _notificationService.showConnectionRestored();
+        } else {
+          await _notificationService.showConnectionLost();
+        }
+      }
+      _wasOnline = _isOnline;
 
       if (_isOnline) {
         // جلب الموظفين من السيرفر
@@ -88,8 +103,10 @@ class AttendanceProvider extends ChangeNotifier {
   }
 
   // تسجيل حضور
-  Future<bool> markAttendance(Employee employee, {bool isEarly = false}) async {
+  Future<Map<String, dynamic>> markAttendance(Employee employee, {bool isEarly = false}) async {
     try {
+      await _notificationService.vibrateTap(); // اهتزاز عند الضغط
+      
       if (_isOnline) {
         final result = await ApiService.instance.markAttendance(
           employee.id,
@@ -104,24 +121,42 @@ class AttendanceProvider extends ChangeNotifier {
           // حفظ محلي أيضاً
           await _saveLocalRecord(employee, isEarly);
           
+          // إشعار نجاح
+          if (isEarly) {
+            await _notificationService.showEarlyAttendanceSuccess(employee.name);
+          } else {
+            await _notificationService.showAttendanceSuccess(employee.name);
+          }
+          
           notifyListeners();
-          return true;
+          return {'success': true, 'offline': false, 'isEarly': isEarly};
         } else if (result['offline'] == true) {
           // حفظ محلي
-          return await _saveOfflineRecord(employee, isEarly);
+          final saved = await _saveOfflineRecord(employee, isEarly);
+          if (saved) {
+            await _notificationService.showOfflineSaved(employee.name);
+            return {'success': true, 'offline': true, 'isEarly': isEarly};
+          }
         }
         
         _error = result['message'];
+        await _notificationService.vibrateError();
         notifyListeners();
-        return false;
+        return {'success': false, 'message': result['message']};
       } else {
         // حفظ محلي
-        return await _saveOfflineRecord(employee, isEarly);
+        final saved = await _saveOfflineRecord(employee, isEarly);
+        if (saved) {
+          await _notificationService.showOfflineSaved(employee.name);
+          return {'success': true, 'offline': true, 'isEarly': isEarly};
+        }
+        return {'success': false, 'message': 'فشل الحفظ المحلي'};
       }
     } catch (e) {
       _error = e.toString();
+      await _notificationService.vibrateError();
       notifyListeners();
-      return false;
+      return {'success': false, 'message': e.toString()};
     }
   }
 
@@ -166,8 +201,10 @@ class AttendanceProvider extends ChangeNotifier {
   }
 
   // إلغاء حضور
-  Future<bool> cancelAttendance(Employee employee) async {
+  Future<Map<String, dynamic>> cancelAttendance(Employee employee) async {
     try {
+      await _notificationService.vibrateTap();
+      
       if (_isOnline) {
         final result = await ApiService.instance.cancelAttendance(employee.id);
         
@@ -175,78 +212,113 @@ class AttendanceProvider extends ChangeNotifier {
           employee.isPresent = false;
           employee.isEarly = false;
           employee.checkInTime = null;
+          
+          await _notificationService.showAttendanceCancelled(employee.name);
+          
           notifyListeners();
-          return true;
+          return {'success': true};
         }
         
         _error = result['message'];
-        return false;
+        await _notificationService.vibrateError();
+        return {'success': false, 'message': result['message']};
       }
       
       _error = 'لا يمكن الإلغاء بدون اتصال';
-      return false;
+      await _notificationService.vibrateWarning();
+      return {'success': false, 'message': 'لا يمكن الإلغاء بدون اتصال'};
     } catch (e) {
       _error = e.toString();
-      return false;
+      await _notificationService.vibrateError();
+      return {'success': false, 'message': e.toString()};
     }
   }
 
   // إنشاء جلسة
-  Future<bool> createSession(String startTime, String sessionType) async {
+  Future<Map<String, dynamic>> createSession(String startTime, String sessionType) async {
     if (!_isOnline) {
       _error = 'لا يمكن إنشاء جلسة بدون اتصال';
+      await _notificationService.vibrateWarning();
       notifyListeners();
-      return false;
+      return {'success': false, 'message': 'لا يمكن إنشاء جلسة بدون اتصال'};
     }
 
     try {
+      await _notificationService.vibrateTap();
+      
       final result = await ApiService.instance.createSession(startTime, sessionType);
       
       if (result['success'] == true) {
         _currentSession = {'session': result['data']};
+        
+        await _notificationService.showSessionStarted();
+        
         notifyListeners();
-        return true;
+        return {'success': true};
       }
       
       _error = result['message'];
+      await _notificationService.vibrateError();
       notifyListeners();
-      return false;
+      return {'success': false, 'message': result['message']};
     } catch (e) {
       _error = e.toString();
+      await _notificationService.vibrateError();
       notifyListeners();
-      return false;
+      return {'success': false, 'message': e.toString()};
     }
   }
 
   // إغلاق جلسة
-  Future<bool> closeSession() async {
+  Future<Map<String, dynamic>> closeSession() async {
     if (!_isOnline) {
       _error = 'لا يمكن إغلاق الجلسة بدون اتصال';
+      await _notificationService.vibrateWarning();
       notifyListeners();
-      return false;
+      return {'success': false, 'message': 'لا يمكن إغلاق الجلسة بدون اتصال'};
     }
 
     try {
+      await _notificationService.vibrateTap();
+      
       final result = await ApiService.instance.closeSession();
       
       if (result['success'] == true) {
+        final presentCount = result['data']?['present_count'] ?? 0;
+        final absentCount = result['data']?['absent_count'] ?? 0;
+        
+        await _notificationService.showSessionClosed(presentCount, absentCount);
+        
         await loadData();
-        return true;
+        return {'success': true, 'presentCount': presentCount, 'absentCount': absentCount};
       }
       
       _error = result['message'];
+      await _notificationService.vibrateError();
       notifyListeners();
-      return false;
+      return {'success': false, 'message': result['message']};
     } catch (e) {
       _error = e.toString();
+      await _notificationService.vibrateError();
       notifyListeners();
-      return false;
+      return {'success': false, 'message': e.toString()};
     }
   }
 
   // تحديث حالة الاتصال
   Future<void> checkConnection() async {
+    final wasOnlineBefore = _isOnline;
     _isOnline = await ApiService.instance.checkConnection();
+    
+    // إشعار بتغير حالة الاتصال
+    if (wasOnlineBefore != _isOnline) {
+      if (_isOnline) {
+        await _notificationService.showConnectionRestored();
+      } else {
+        await _notificationService.showConnectionLost();
+      }
+    }
+    
     notifyListeners();
   }
 

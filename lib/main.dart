@@ -8,6 +8,7 @@ import 'providers/sync_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'services/database_service.dart';
+import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,11 +16,22 @@ void main() async {
   // Initialize SQLite
   await DatabaseService.instance.database;
   
+  // Initialize Notifications
+  await NotificationService.instance.initialize();
+  
   // Set orientation
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+  
+  // Set status bar style
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Color(0xFF0D9488),
+      statusBarIconBrightness: Brightness.light,
+    ),
+  );
   
   runApp(const MyApp());
 }
@@ -36,7 +48,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => SyncProvider()),
       ],
       child: MaterialApp(
-        title: 'الحضور والانصراف',
+        title: 'حضور جباليا',
         debugShowCheckedModeBanner: false,
         
         theme: ThemeData(
@@ -48,6 +60,28 @@ class MyApp extends StatelessWidget {
           appBarTheme: const AppBarTheme(
             centerTitle: true,
             elevation: 0,
+          ),
+          // تحسين مظهر الأزرار
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+          // تحسين مظهر البطاقات
+          cardTheme: CardTheme(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+          // تحسين مظهر الحوارات
+          dialogTheme: DialogTheme(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
           ),
         ),
         
@@ -65,9 +99,38 @@ class AuthWrapper extends StatelessWidget {
     return Consumer<AuthProvider>(
       builder: (context, auth, _) {
         if (auth.isLoading) {
-          return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
+          return Scaffold(
+            body: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFF0D9488),
+                    Color(0xFF0F766E),
+                  ],
+                ),
+              ),
+              child: const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 3,
+                    ),
+                    SizedBox(height: 24),
+                    Text(
+                      'جاري التحميل...',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           );
         }

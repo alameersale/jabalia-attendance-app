@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import '../services/api_service.dart';
 import '../services/database_service.dart';
+import '../services/notification_service.dart';
 
 class SyncProvider extends ChangeNotifier {
   bool _isSyncing = false;
@@ -10,6 +11,8 @@ class SyncProvider extends ChangeNotifier {
   String? _lastSyncTime;
   String? _syncError;
   StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
+  
+  final NotificationService _notificationService = NotificationService.instance;
 
   bool get isSyncing => _isSyncing;
   int get pendingCount => _pendingCount;
@@ -22,17 +25,19 @@ class SyncProvider extends ChangeNotifier {
   }
 
   Future<void> _init() async {
+    await _notificationService.initialize();
     await _updatePendingCount();
     _startConnectivityListener();
   }
 
   void _startConnectivityListener() {
-    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((results) {
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((results) async {
       // Check if any result is not "none"
       final hasConnection = results.any((result) => result != ConnectivityResult.none);
-      if (hasConnection) {
-        // اتصال متاح - محاولة المزامنة
-        syncPendingRecords();
+      if (hasConnection && _pendingCount > 0) {
+        // اتصال متاح وهناك سجلات معلقة - محاولة المزامنة
+        await Future.delayed(const Duration(seconds: 2)); // انتظار استقرار الاتصال
+        await syncPendingRecords();
       }
     });
   }
@@ -62,6 +67,7 @@ class SyncProvider extends ChangeNotifier {
       if (!isOnline) {
         _syncError = 'لا يوجد اتصال بالإنترنت';
         _isSyncing = false;
+        await _notificationService.vibrateWarning();
         notifyListeners();
         return false;
       }
@@ -78,19 +84,31 @@ class SyncProvider extends ChangeNotifier {
         await DatabaseService.instance.clearSyncedRecords();
 
         _lastSyncTime = _getCurrentTime();
+        final syncedCount = _pendingCount;
         _pendingCount = 0;
         _isSyncing = false;
+        
+        // إشعار نجاح المزامنة
+        await _notificationService.showSyncSuccess(syncedCount);
+        
         notifyListeners();
         return true;
       } else {
         _syncError = result['message'] ?? 'فشل في المزامنة';
         _isSyncing = false;
+        
+        // إشعار فشل المزامنة
+        await _notificationService.showSyncFailed(_syncError!);
+        
         notifyListeners();
         return false;
       }
     } catch (e) {
       _syncError = 'خطأ: $e';
       _isSyncing = false;
+      
+      await _notificationService.showSyncFailed(_syncError!);
+      
       notifyListeners();
       return false;
     }
@@ -103,6 +121,11 @@ class SyncProvider extends ChangeNotifier {
   String _getCurrentTime() {
     final now = DateTime.now();
     return '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+  }
+
+  void clearError() {
+    _syncError = null;
+    notifyListeners();
   }
 
   @override

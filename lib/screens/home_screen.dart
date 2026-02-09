@@ -8,6 +8,7 @@ import '../models/employee.dart';
 import '../widgets/employee_card.dart';
 import '../widgets/session_card.dart';
 import '../widgets/sync_indicator.dart';
+import '../widgets/custom_snackbar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,7 +17,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   final _searchController = TextEditingController();
   Timer? _refreshTimer;
   Timer? _searchDebounce;
@@ -24,16 +25,26 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadData();
     _startAutoRefresh();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _searchController.dispose();
     _refreshTimer?.cancel();
     _searchDebounce?.cancel();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // تحديث البيانات عند العودة للتطبيق
+      _loadData();
+    }
   }
 
   Future<void> _loadData() async {
@@ -59,9 +70,22 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('الحضور والانصراف'),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              'assets/sounds/icon.png',
+              width: 32,
+              height: 32,
+              errorBuilder: (_, __, ___) => const Icon(Icons.access_time, size: 28),
+            ),
+            const SizedBox(width: 8),
+            const Text('الحضور والانصراف'),
+          ],
+        ),
         backgroundColor: const Color(0xFF0D9488),
         foregroundColor: Colors.white,
+        elevation: 2,
         actions: [
           // مؤشر المزامنة
           const SyncIndicator(),
@@ -69,6 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // تسجيل الخروج
           IconButton(
             icon: const Icon(Icons.logout),
+            tooltip: 'تسجيل الخروج',
             onPressed: () => _showLogoutDialog(),
           ),
         ],
@@ -76,13 +101,29 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Consumer<AttendanceProvider>(
         builder: (context, provider, _) {
           if (provider.isLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircularProgressIndicator(
+                    color: Color(0xFF0D9488),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'جاري التحميل...',
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
             );
           }
 
           return RefreshIndicator(
             onRefresh: _loadData,
+            color: const Color(0xFF0D9488),
             child: Column(
               children: [
                 // حالة الاتصال
@@ -93,6 +134,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 
                 // البحث
                 _buildSearchBar(),
+                
+                // عداد الموظفين
+                _buildEmployeeCounter(provider),
                 
                 // قائمة الموظفين
                 Expanded(
@@ -107,24 +151,46 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildConnectionStatus(AttendanceProvider provider) {
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      color: provider.isOnline ? Colors.green.shade100 : Colors.orange.shade100,
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: provider.isOnline 
+              ? [const Color(0xFF10B981), const Color(0xFF059669)]
+              : [const Color(0xFFF59E0B), const Color(0xFFD97706)],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: (provider.isOnline ? Colors.green : Colors.orange).withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            provider.isOnline ? Icons.wifi : Icons.wifi_off,
-            size: 18,
-            color: provider.isOnline ? Colors.green.shade700 : Colors.orange.shade700,
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              provider.isOnline ? Icons.wifi : Icons.wifi_off,
+              size: 20,
+              color: Colors.white,
+            ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
           Text(
-            provider.isOnline ? 'متصل بالإنترنت' : 'وضع عدم الاتصال',
-            style: TextStyle(
-              color: provider.isOnline ? Colors.green.shade700 : Colors.orange.shade700,
+            provider.isOnline ? '🟢 متصل بالإنترنت' : '🔴 وضع عدم الاتصال',
+            style: const TextStyle(
+              color: Colors.white,
               fontWeight: FontWeight.bold,
+              fontSize: 15,
             ),
           ),
         ],
@@ -134,27 +200,105 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildSearchBar() {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: TextField(
         controller: _searchController,
         onChanged: _onSearchChanged,
         decoration: InputDecoration(
-          hintText: 'ابحث بالاسم أو الرقم الوظيفي...',
-          prefixIcon: const Icon(Icons.search),
+          hintText: 'ابحث بالاسم أو الرقم الوظيفي أو رقم الهوية...',
+          hintStyle: TextStyle(color: Colors.grey.shade500),
+          prefixIcon: const Icon(Icons.search, color: Color(0xFF0D9488)),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
-                  icon: const Icon(Icons.clear),
+                  icon: const Icon(Icons.clear, color: Colors.grey),
                   onPressed: () {
                     _searchController.clear();
                     context.read<AttendanceProvider>().searchEmployees('');
+                    setState(() {});
                   },
                 )
               : null,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(color: Colors.grey.shade300),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Color(0xFF0D9488), width: 2),
           ),
           filled: true,
-          fillColor: Colors.grey.shade100,
+          fillColor: Colors.grey.shade50,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmployeeCounter(AttendanceProvider provider) {
+    final totalEmployees = provider.employees.length;
+    final presentEmployees = provider.employees.where((e) => e.isPresent).length;
+    
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          _buildCounterChip(
+            icon: Icons.people,
+            label: 'الكل',
+            count: totalEmployees,
+            color: Colors.blue,
+          ),
+          const SizedBox(width: 12),
+          _buildCounterChip(
+            icon: Icons.check_circle,
+            label: 'حاضر',
+            count: presentEmployees,
+            color: Colors.green,
+          ),
+          const SizedBox(width: 12),
+          _buildCounterChip(
+            icon: Icons.schedule,
+            label: 'منتظر',
+            count: totalEmployees - presentEmployees,
+            color: Colors.orange,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCounterChip({
+    required IconData icon,
+    required String label,
+    required int count,
+    required Color color,
+  }) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withOpacity(0.3)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 18, color: color),
+            const SizedBox(width: 6),
+            Text(
+              '$count',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: color,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -166,17 +310,33 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.search_off,
-              size: 64,
-              color: Colors.grey.shade400,
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.search_off,
+                size: 64,
+                color: Colors.grey.shade400,
+              ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             Text(
               'لا يوجد موظفين',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
                 color: Colors.grey.shade600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'جرب البحث باسم مختلف',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey.shade500,
               ),
             ),
           ],
@@ -185,7 +345,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       itemCount: provider.employees.length,
       itemBuilder: (context, index) {
         final employee = provider.employees[index];
@@ -201,20 +361,29 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _markAttendance(Employee employee, bool isEarly) async {
     final provider = context.read<AttendanceProvider>();
-    final success = await provider.markAttendance(employee, isEarly: isEarly);
+    
+    // التحقق من وجود جلسة نشطة
+    if (!provider.hasActiveSession && provider.isOnline) {
+      if (mounted) {
+        CustomSnackBar.noActiveSession(context);
+      }
+      return;
+    }
+    
+    final result = await provider.markAttendance(employee, isEarly: isEarly);
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            success
-                ? 'تم تسجيل حضور ${employee.name}${isEarly ? ' (مبكر)' : ''}'
-                : provider.error ?? 'فشل في التسجيل',
-          ),
-          backgroundColor: success ? Colors.green : Colors.red,
-          duration: const Duration(seconds: 2),
-        ),
-      );
+      if (result['success'] == true) {
+        if (result['offline'] == true) {
+          CustomSnackBar.offlineSaved(context, employee.name);
+        } else if (result['isEarly'] == true) {
+          CustomSnackBar.earlyAttendanceSuccess(context, employee.name);
+        } else {
+          CustomSnackBar.attendanceSuccess(context, employee.name);
+        }
+      } else {
+        CustomSnackBar.error(context, result['message'] ?? 'فشل في التسجيل');
+      }
     }
 
     // تحديث عداد المزامنة
@@ -225,8 +394,25 @@ class _HomeScreenState extends State<HomeScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('إلغاء الحضور'),
-        content: Text('هل تريد إلغاء حضور ${employee.name}؟'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.red.shade50,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(Icons.warning_amber_rounded, color: Colors.red.shade600),
+            ),
+            const SizedBox(width: 12),
+            const Text('إلغاء الحضور'),
+          ],
+        ),
+        content: Text(
+          'هل تريد إلغاء حضور ${employee.name}؟',
+          style: const TextStyle(fontSize: 16),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -237,6 +423,7 @@ class _HomeScreenState extends State<HomeScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             child: const Text('نعم، إلغاء'),
           ),
@@ -247,17 +434,14 @@ class _HomeScreenState extends State<HomeScreen> {
     if (confirm != true) return;
 
     final provider = context.read<AttendanceProvider>();
-    final success = await provider.cancelAttendance(employee);
+    final result = await provider.cancelAttendance(employee);
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            success ? 'تم إلغاء الحضور' : provider.error ?? 'فشل في الإلغاء',
-          ),
-          backgroundColor: success ? Colors.orange : Colors.red,
-        ),
-      );
+      if (result['success'] == true) {
+        CustomSnackBar.attendanceCancelled(context, employee.name);
+      } else {
+        CustomSnackBar.error(context, result['message'] ?? 'فشل في الإلغاء');
+      }
     }
   }
 
@@ -265,8 +449,56 @@ class _HomeScreenState extends State<HomeScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('تسجيل الخروج'),
-        content: const Text('هل تريد تسجيل الخروج؟'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.orange.shade50,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(Icons.logout, color: Colors.orange.shade600),
+            ),
+            const SizedBox(width: 12),
+            const Text('تسجيل الخروج'),
+          ],
+        ),
+        content: Consumer<SyncProvider>(
+          builder: (context, sync, _) {
+            if (sync.hasPendingRecords) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('هل تريد تسجيل الخروج؟'),
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.orange.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.warning_amber, color: Colors.orange.shade700),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'لديك ${sync.pendingCount} سجل غير متزامن',
+                            style: TextStyle(color: Colors.orange.shade700),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            }
+            return const Text('هل تريد تسجيل الخروج؟');
+          },
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -280,6 +512,7 @@ class _HomeScreenState extends State<HomeScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             child: const Text('خروج'),
           ),
