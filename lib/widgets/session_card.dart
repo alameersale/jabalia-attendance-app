@@ -154,8 +154,8 @@ class SessionCard extends StatelessWidget {
 
     showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setState) => AlertDialog(
           title: const Text('بدء جلسة جديدة'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -170,7 +170,7 @@ class SessionCard extends StatelessWidget {
                 readOnly: true,
                 onTap: () async {
                   final time = await showTimePicker(
-                    context: context,
+                    context: ctx,
                     initialTime: TimeOfDay.now(),
                   );
                   if (time != null) {
@@ -197,22 +197,23 @@ class SessionCard extends StatelessWidget {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(ctx),
               child: const Text('إلغاء'),
             ),
             ElevatedButton(
               onPressed: () async {
-                Navigator.pop(context);
+                Navigator.pop(ctx);
                 final provider = context.read<AttendanceProvider>();
-                final success = await provider.createSession(
+                final result = await provider.createSession(
                   timeController.text,
                   sessionType,
                 );
                 if (context.mounted) {
+                  final success = result['success'] == true;
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                        success ? 'تم إنشاء الجلسة' : provider.error ?? 'فشل',
+                        success ? 'تم إنشاء الجلسة' : (result['message'] ?? 'فشل'),
                       ),
                       backgroundColor: success ? Colors.green : Colors.red,
                     ),
@@ -230,26 +231,27 @@ class SessionCard extends StatelessWidget {
   void _showCloseSessionDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         title: const Text('إغلاق الجلسة'),
         content: const Text(
           'هل تريد إغلاق الجلسة؟\nسيتم تسجيل الغياب لمن لم يحضر.',
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(ctx),
             child: const Text('إلغاء'),
           ),
           ElevatedButton(
             onPressed: () async {
-              Navigator.pop(context);
+              Navigator.pop(ctx);
               final provider = context.read<AttendanceProvider>();
-              final success = await provider.closeSession();
+              final result = await provider.closeSession();
               if (context.mounted) {
+                final success = result['success'] == true;
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      success ? 'تم إغلاق الجلسة' : provider.error ?? 'فشل',
+                      success ? 'تم إغلاق الجلسة' : (result['message'] ?? 'فشل'),
                     ),
                     backgroundColor: success ? Colors.green : Colors.red,
                   ),

@@ -31,9 +31,9 @@ class SyncProvider extends ChangeNotifier {
   }
 
   void _startConnectivityListener() {
-    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((results) async {
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) async {
       // Check if any result is not "none"
-      final hasConnection = results.any((result) => result != ConnectivityResult.none);
+      final hasConnection = results.isNotEmpty && results.any((result) => result != ConnectivityResult.none);
       if (hasConnection && _pendingCount > 0) {
         // اتصال متاح وهناك سجلات معلقة - محاولة المزامنة
         await Future.delayed(const Duration(seconds: 2)); // انتظار استقرار الاتصال
