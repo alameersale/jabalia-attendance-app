@@ -53,11 +53,22 @@ class ApiService {
 
   // ==================== Employees ====================
 
-  Future<List<Employee>> getEmployees({String? search}) async {
+  Future<List<Employee>> getEmployees({String? search, bool merge = true}) async {
     try {
       String url = '${ApiConfig.baseUrl}${ApiConfig.employees}';
+      final params = <String>[];
+      
       if (search != null && search.isNotEmpty) {
-        url += '?search=$search';
+        params.add('search=$search');
+      }
+      
+      // إضافة معامل merge لدمج البيانات من جميع الأجهزة
+      if (merge) {
+        params.add('merge=true');
+      }
+      
+      if (params.isNotEmpty) {
+        url += '?${params.join('&')}';
       }
 
       final headers = await _getHeaders();
@@ -149,12 +160,24 @@ class ApiService {
 
   Future<Map<String, dynamic>> syncAttendances(List<AttendanceRecord> records) async {
     try {
+      // جلب device_id من SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      String? deviceId = prefs.getString('device_id');
+      
+      // إنشاء device_id إذا لم يكن موجوداً
+      if (deviceId == null || deviceId.isEmpty) {
+        deviceId = 'device_${DateTime.now().millisecondsSinceEpoch}_${DateTime.now().microsecondsSinceEpoch.toString().substring(8)}';
+        await prefs.setString('device_id', deviceId);
+      }
+      
       final headers = await _getHeaders();
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}${ApiConfig.syncAttendances}'),
         headers: headers,
         body: jsonEncode({
           'records': records.map((r) => r.toSyncJson()).toList(),
+          'device_id': deviceId,        // إرسال معرّف الجهاز
+          'sync_mode': 'merge',         // وضع الدمج بدلاً من الاستبدال
         }),
       ).timeout(const Duration(seconds: 60));
 
