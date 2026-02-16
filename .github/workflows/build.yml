@@ -1,57 +1,102 @@
-name: Build Android APK
+name: Build Android APK - نظام الحضور v2.1
 
 on:
   push:
+    branches: [ main, master ]
+  pull_request:
     branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
   build:
+    name: Build APK
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout code
+      - name: 📥 Checkout code
         uses: actions/checkout@v4
       
-      - name: Setup Java
+      - name: ☕ Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
       
-      - name: Setup Flutter
+      - name: 🐦 Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.0'
           channel: 'stable'
           cache: true
       
-      - name: Flutter version
-        run: flutter --version
+      - name: 📊 Flutter version & info
+        run: |
+          flutter --version
+          flutter doctor -v
       
-      - name: Create local.properties
+      - name: 🔧 Create local.properties
         run: |
           cd android
           echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
           echo "flutter.sdk=$FLUTTER_ROOT" >> local.properties
           echo "flutter.versionCode=1" >> local.properties
-          echo "flutter.versionName=1.0.0" >> local.properties
+          echo "flutter.versionName=2.1.0" >> local.properties
           cat local.properties
       
-      - name: Get dependencies
+      - name: 📦 Get dependencies
         run: flutter pub get
       
-      - name: Build APK
+      - name: 🔍 Analyze code
+        run: flutter analyze
+        continue-on-error: true
+      
+      - name: ✅ Run tests
+        run: flutter test
+        continue-on-error: true
+      
+      - name: 🏗️ Build APK (Release)
         run: flutter build apk --release --no-tree-shake-icons
       
-      - name: List build outputs
+      - name: 📋 List build outputs
         run: |
-          ls -la build/app/outputs/flutter-apk/ || echo "APK directory not found"
+          echo "=== Build Outputs ==="
+          ls -lah build/app/outputs/flutter-apk/ || echo "APK directory not found"
+          echo "=== APK Details ==="
+          du -h build/app/outputs/flutter-apk/*.apk || echo "No APK files found"
       
-      - name: Upload APK
+      - name: 📱 Rename APK with version
+        run: |
+          cd build/app/outputs/flutter-apk/
+          VERSION="2.1.0"
+          DATE=$(date +%Y%m%d)
+          mv app-release.apk jabalia-attendance-v${VERSION}-${DATE}.apk
+          ls -lah
+      
+      - name: ⬆️ Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: jabalia-attendance-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
-          retention-days: 30
+          name: jabalia-attendance-apk-v2.1
+          path: build/app/outputs/flutter-apk/jabalia-attendance-*.apk
+          retention-days: 90
           if-no-files-found: error
+      
+      - name: 📝 Generate build summary
+        run: |
+          echo "## 🎉 Build Completed Successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📱 App Details" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: 2.1.0" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build Date**: $(date +%Y-%m-%d)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 APK Info" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          ls -lh build/app/outputs/flutter-apk/*.apk >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✨ What's New in v2.1" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ إصلاح خطأ Service Worker" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ دعم المزامنة من أكثر من جهاز" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ إضافة معرّف فريد للجهاز (Device ID)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Background Sync API" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ معالجة أخطاء محسّنة" >> $GITHUB_STEP_SUMMARY

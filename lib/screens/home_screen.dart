@@ -7,6 +7,7 @@ import '../providers/auth_provider.dart';
 import '../providers/attendance_provider.dart';
 import '../providers/sync_provider.dart';
 import '../models/employee.dart';
+import '../main.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -66,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.gray50,
       body: Consumer<AttendanceProvider>(
         builder: (context, provider, _) {
           if (provider.isLoading) {
@@ -75,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
           return RefreshIndicator(
             onRefresh: _loadData,
-            color: const Color(0xFF0D9488),
+            color: AppColors.primary,
             backgroundColor: Colors.white,
             child: CustomScrollView(
               physics: const AlwaysScrollableScrollPhysics(
@@ -123,9 +124,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFF0D9488),
-            Color(0xFF0F766E),
-            Color(0xFF115E59),
+            AppColors.primary,
+            AppColors.primaryLight,
+            AppColors.primaryDark,
           ],
         ),
       ),
@@ -148,10 +149,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   ),
                 ],
               ),
-              child: const Icon(
-                Icons.access_time_filled_rounded,
-                size: 55,
-                color: Color(0xFF0D9488),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(25),
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 32),
@@ -183,7 +189,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       expandedHeight: 160,
       floating: false,
       pinned: true,
-      backgroundColor: const Color(0xFF0D9488),
+      backgroundColor: AppColors.primary,
       elevation: 0,
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
@@ -192,9 +198,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Color(0xFF0D9488),
-                Color(0xFF0F766E),
-                Color(0xFF115E59),
+                AppColors.primary,
+                AppColors.primaryLight,
+                AppColors.primaryDark,
               ],
             ),
           ),
@@ -220,10 +226,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           ),
                         ],
                       ),
-                      child: const Icon(
-                        Icons.access_time_filled_rounded,
-                        color: Color(0xFF0D9488),
-                        size: 32,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Padding(
+                          padding: const EdgeInsets.all(6),
+                          child: Image.asset(
+                            'assets/images/logo.png',
+                            fit: BoxFit.contain,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -246,9 +257,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         Text(
                           'بلدية جباليا النزلة',
                           style: GoogleFonts.cairo(
-                            color: Colors.white.withOpacity(0.8),
+                            color: AppColors.secondary,
                             fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
@@ -274,7 +285,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     '${sync.pendingCount}',
                     style: GoogleFonts.cairo(fontSize: 10, fontWeight: FontWeight.bold),
                   ),
-                  backgroundColor: const Color(0xFFF59E0B),
+                  backgroundColor: AppColors.warning,
                   child: IconButton(
                     icon: sync.isSyncing
                         ? const SizedBox(
@@ -311,13 +322,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
         color: provider.isOnline 
-            ? const Color(0xFF10B981).withOpacity(0.2) 
-            : const Color(0xFFF59E0B).withOpacity(0.2),
+            ? AppColors.success.withOpacity(0.2) 
+            : AppColors.warning.withOpacity(0.2),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: provider.isOnline 
-              ? const Color(0xFF10B981).withOpacity(0.5) 
-              : const Color(0xFFF59E0B).withOpacity(0.5),
+              ? AppColors.success.withOpacity(0.5) 
+              : AppColors.warning.withOpacity(0.5),
           width: 1.5,
         ),
       ),
@@ -329,14 +340,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             height: 10,
             decoration: BoxDecoration(
               color: provider.isOnline 
-                  ? const Color(0xFF10B981) 
-                  : const Color(0xFFF59E0B),
+                  ? AppColors.success 
+                  : AppColors.warning,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
                   color: (provider.isOnline 
-                      ? const Color(0xFF10B981) 
-                      : const Color(0xFFF59E0B)).withOpacity(0.5),
+                      ? AppColors.success 
+                      : AppColors.warning).withOpacity(0.5),
                   blurRadius: 6,
                   spreadRadius: 1,
                 ),
@@ -383,9 +394,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               end: Alignment.bottomRight,
               colors: hasSession
                   ? (isActive
-                      ? [const Color(0xFF10B981), const Color(0xFF059669)]
-                      : [const Color(0xFF6B7280), const Color(0xFF4B5563)])
-                  : [const Color(0xFF3B82F6), const Color(0xFF2563EB)],
+                      ? [AppColors.success, AppColors.successLight]
+                      : [AppColors.gray500, AppColors.gray600])
+                  : [AppColors.primary, AppColors.primaryLight],
             ),
           ),
           child: Padding(
@@ -527,7 +538,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
-        foregroundColor: isDestructive ? const Color(0xFFDC2626) : const Color(0xFF0D9488),
+        foregroundColor: isDestructive ? AppColors.danger : AppColors.primary,
         padding: const EdgeInsets.symmetric(vertical: 14),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
@@ -571,14 +582,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             icon: Icons.check_circle_rounded,
             label: 'حاضر',
             value: present,
-            color: const Color(0xFF10B981),
+            color: AppColors.success,
           ),
           const SizedBox(width: 12),
           _buildStatCard(
             icon: Icons.hourglass_empty_rounded,
             label: 'منتظر',
             value: waiting,
-            color: const Color(0xFFF59E0B),
+            color: AppColors.warning,
           ),
         ],
       ),
@@ -631,7 +642,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               label,
               style: GoogleFonts.cairo(
                 fontSize: 13,
-                color: const Color(0xFF64748B),
+                color: AppColors.gray600,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -661,24 +672,24 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           onChanged: _onSearchChanged,
           style: GoogleFonts.cairo(
             fontSize: 15,
-            color: const Color(0xFF1E293B),
+            color: AppColors.gray900,
           ),
           decoration: InputDecoration(
             hintText: 'ابحث بالاسم أو الرقم الوظيفي أو رقم الهوية...',
             hintStyle: GoogleFonts.cairo(
-              color: const Color(0xFF94A3B8),
+              color: AppColors.gray500,
               fontSize: 14,
             ),
             prefixIcon: Container(
               margin: const EdgeInsets.all(10),
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFF0D9488).withOpacity(0.1),
+                color: AppColors.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Icon(
                 Icons.search_rounded,
-                color: Color(0xFF0D9488),
+                color: AppColors.primary,
                 size: 20,
               ),
             ),
@@ -686,7 +697,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 ? IconButton(
                     icon: const Icon(
                       Icons.clear_rounded,
-                      color: Color(0xFF94A3B8),
+                      color: AppColors.gray500,
                     ),
                     onPressed: () {
                       _searchController.clear();
@@ -712,14 +723,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             children: [
               Container(
                 padding: const EdgeInsets.all(28),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
+                decoration: const BoxDecoration(
+                  color: AppColors.gray100,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.search_off_rounded,
                   size: 56,
-                  color: Color(0xFF94A3B8),
+                  color: AppColors.gray500,
                 ),
               ),
               const SizedBox(height: 20),
@@ -728,7 +739,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 style: GoogleFonts.cairo(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF64748B),
+                  color: AppColors.gray600,
                 ),
               ),
               const SizedBox(height: 8),
@@ -736,7 +747,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 'جرب البحث بكلمات مختلفة',
                 style: GoogleFonts.cairo(
                   fontSize: 14,
-                  color: const Color(0xFF94A3B8),
+                  color: AppColors.gray500,
                 ),
               ),
             ],
@@ -766,12 +777,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: employee.isPresent 
-            ? Border.all(color: const Color(0xFF10B981), width: 2)
+            ? Border.all(color: AppColors.success, width: 2)
             : null,
         boxShadow: [
           BoxShadow(
             color: employee.isPresent 
-                ? const Color(0xFF10B981).withOpacity(0.15)
+                ? AppColors.success.withOpacity(0.15)
                 : Colors.black.withOpacity(0.05),
             blurRadius: 15,
             offset: const Offset(0, 4),
@@ -791,15 +802,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: employee.isPresent
-                      ? [const Color(0xFF10B981), const Color(0xFF059669)]
-                      : [const Color(0xFF94A3B8), const Color(0xFF64748B)],
+                      ? [AppColors.success, AppColors.successLight]
+                      : [AppColors.gray500, AppColors.gray600],
                 ),
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
                     color: (employee.isPresent
-                        ? const Color(0xFF10B981)
-                        : const Color(0xFF94A3B8)).withOpacity(0.3),
+                        ? AppColors.success
+                        : AppColors.gray500).withOpacity(0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   ),
@@ -830,7 +841,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           style: GoogleFonts.cairo(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: const Color(0xFF1E293B),
+                            color: AppColors.gray900,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -852,8 +863,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                 employee.isEarly ? Icons.wb_sunny_rounded : Icons.check_rounded,
                                 size: 15,
                                 color: employee.isEarly
-                                    ? const Color(0xFFD97706)
-                                    : const Color(0xFF059669),
+                                    ? AppColors.warningDark
+                                    : AppColors.success,
                               ),
                               const SizedBox(width: 5),
                               Text(
@@ -862,8 +873,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   color: employee.isEarly
-                                      ? const Color(0xFFD97706)
-                                      : const Color(0xFF059669),
+                                      ? AppColors.warningDark
+                                      : AppColors.success,
                                 ),
                               ),
                             ],
@@ -876,25 +887,25 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   Row(
                     children: [
                       if (employee.employeeNumber != null) ...[
-                        Icon(Icons.badge_rounded, size: 15, color: const Color(0xFF94A3B8)),
+                        const Icon(Icons.badge_rounded, size: 15, color: AppColors.gray500),
                         const SizedBox(width: 5),
                         Text(
                           employee.employeeNumber!,
                           style: GoogleFonts.cairo(
                             fontSize: 13,
-                            color: const Color(0xFF64748B),
+                            color: AppColors.gray600,
                           ),
                         ),
                         const SizedBox(width: 14),
                       ],
                       if (employee.checkInTime != null) ...[
-                        Icon(Icons.access_time_rounded, size: 15, color: const Color(0xFF94A3B8)),
+                        const Icon(Icons.access_time_rounded, size: 15, color: AppColors.gray500),
                         const SizedBox(width: 5),
                         Text(
                           employee.checkInTime!,
                           style: GoogleFonts.cairo(
                             fontSize: 13,
-                            color: const Color(0xFF64748B),
+                            color: AppColors.gray600,
                           ),
                         ),
                       ],
@@ -908,21 +919,21 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             if (!employee.isPresent) ...[
               _buildActionButton(
                 icon: Icons.wb_sunny_rounded,
-                color: const Color(0xFFF59E0B),
+                color: AppColors.warning,
                 tooltip: 'حضور مبكر',
                 onPressed: () => _markAttendance(employee, true),
               ),
               const SizedBox(width: 10),
               _buildActionButton(
                 icon: Icons.check_rounded,
-                color: const Color(0xFF10B981),
+                color: AppColors.success,
                 tooltip: 'تسجيل حضور',
                 onPressed: () => _markAttendance(employee, false),
               ),
             ] else ...[
               _buildActionButton(
                 icon: Icons.close_rounded,
-                color: const Color(0xFFEF4444),
+                color: AppColors.danger,
                 tooltip: 'إلغاء',
                 onPressed: () => _cancelAttendance(employee),
               ),
@@ -1006,10 +1017,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xFFEF4444).withOpacity(0.1),
+                color: AppColors.danger.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.cancel_rounded, color: Color(0xFFEF4444)),
+              child: const Icon(Icons.cancel_rounded, color: AppColors.danger),
             ),
             const SizedBox(width: 12),
             Text(
@@ -1030,7 +1041,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFEF4444),
+              backgroundColor: AppColors.danger,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
@@ -1070,10 +1081,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withOpacity(0.1),
+                  color: AppColors.success.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.play_circle_rounded, color: Color(0xFF10B981)),
+                child: const Icon(Icons.play_circle_rounded, color: AppColors.success),
               ),
               const SizedBox(width: 12),
               Text(
@@ -1096,7 +1107,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: Color(0xFF0D9488), width: 2),
+                    borderSide: const BorderSide(color: AppColors.primary, width: 2),
                   ),
                 ),
                 readOnly: true,
@@ -1121,7 +1132,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 title: Text('حضور فقط', style: GoogleFonts.cairo()),
                 value: 'attendance_only',
                 groupValue: sessionType,
-                activeColor: const Color(0xFF0D9488),
+                activeColor: AppColors.primary,
                 onChanged: (v) => setState(() => sessionType = v!),
                 contentPadding: EdgeInsets.zero,
               ),
@@ -1129,7 +1140,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 title: Text('حضور وانصراف', style: GoogleFonts.cairo()),
                 value: 'attendance_departure',
                 groupValue: sessionType,
-                activeColor: const Color(0xFF0D9488),
+                activeColor: AppColors.primary,
                 onChanged: (v) => setState(() => sessionType = v!),
                 contentPadding: EdgeInsets.zero,
               ),
@@ -1156,7 +1167,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF10B981),
+                backgroundColor: AppColors.success,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
@@ -1178,10 +1189,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xFFEF4444).withOpacity(0.1),
+                color: AppColors.danger.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.stop_circle_rounded, color: Color(0xFFEF4444)),
+              child: const Icon(Icons.stop_circle_rounded, color: AppColors.danger),
             ),
             const SizedBox(width: 12),
             Text(
@@ -1207,13 +1218,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.warning_amber_rounded, color: Color(0xFFD97706)),
+                  const Icon(Icons.warning_amber_rounded, color: AppColors.warningDark),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       'سيتم تسجيل الغياب لمن لم يحضر',
                       style: GoogleFonts.cairo(
-                        color: const Color(0xFFD97706),
+                        color: AppColors.warningDark,
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                       ),
@@ -1244,7 +1255,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFEF4444),
+              backgroundColor: AppColors.danger,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
@@ -1265,10 +1276,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xFFF59E0B).withOpacity(0.1),
+                color: AppColors.warning.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.logout_rounded, color: Color(0xFFF59E0B)),
+              child: const Icon(Icons.logout_rounded, color: AppColors.warning),
             ),
             const SizedBox(width: 12),
             Text(
@@ -1297,13 +1308,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.warning_amber_rounded, color: Color(0xFFD97706)),
+                        const Icon(Icons.warning_amber_rounded, color: AppColors.warningDark),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             'لديك ${sync.pendingCount} سجل غير متزامن',
                             style: GoogleFonts.cairo(
-                              color: const Color(0xFFD97706),
+                              color: AppColors.warningDark,
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
                             ),
@@ -1328,7 +1339,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               context.read<AuthProvider>().logout();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFEF4444),
+              backgroundColor: AppColors.danger,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
@@ -1360,7 +1371,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             ),
           ],
         ),
-        backgroundColor: isError ? const Color(0xFFEF4444) : const Color(0xFF10B981),
+        backgroundColor: isError ? AppColors.danger : AppColors.success,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         margin: const EdgeInsets.all(16),
