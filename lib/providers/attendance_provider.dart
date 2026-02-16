@@ -62,10 +62,25 @@ class AttendanceProvider extends ChangeNotifier {
         if (sessionResult['success'] == true) {
           _currentSession = sessionResult['data'];
           _updateEmployeesAttendance();
+        } else {
+          // إذا لم توجد جلسة على السيرفر، جرب الجلسة المحلية
+          final localSession = await DatabaseService.instance.getCurrentSession();
+          if (localSession != null && localSession['session']?['status'] == 'active') {
+            _currentSession = localSession;
+            _updateLocalAttendance();
+          }
         }
       } else {
         // جلب من التخزين المحلي
         _employees = await DatabaseService.instance.getCachedEmployees();
+        
+        // جلب الجلسة المحلية
+        final localSession = await DatabaseService.instance.getCurrentSession();
+        if (localSession != null && localSession['session']?['status'] == 'active') {
+          _currentSession = localSession;
+        } else {
+          _currentSession = null;
+        }
       }
 
       // جلب السجلات المحلية لليوم
@@ -74,6 +89,21 @@ class AttendanceProvider extends ChangeNotifier {
 
     } catch (e) {
       _error = e.toString();
+      
+      // في حالة الخطأ، جرب استخدام البيانات المحلية
+      try {
+        _employees = await DatabaseService.instance.getCachedEmployees();
+        final localSession = await DatabaseService.instance.getCurrentSession();
+        if (localSession != null && localSession['session']?['status'] == 'active') {
+          _currentSession = localSession;
+        } else {
+          _currentSession = null;
+        }
+        _todayRecords = await DatabaseService.instance.getTodayRecords();
+        _updateLocalAttendance();
+      } catch (e2) {
+        print('Error loading local data: $e2');
+      }
     }
 
     _isLoading = false;
@@ -249,7 +279,16 @@ class AttendanceProvider extends ChangeNotifier {
       final result = await ApiService.instance.createSession(startTime, sessionType);
       
       if (result['success'] == true) {
-        _currentSession = {'session': result['data']};
+        final sessionData = result['data'];
+        _currentSession = {'session': sessionData};
+        
+        // حفظ الجلسة محلياً
+        try {
+          await DatabaseService.instance.saveSession(sessionData);
+        } catch (e) {
+          // تجاهل خطأ الحفظ المحلي
+          print('Error saving session locally: $e');
+        }
         
         await _notificationService.showSessionStarted();
         
@@ -286,6 +325,18 @@ class AttendanceProvider extends ChangeNotifier {
       if (result['success'] == true) {
         final presentCount = result['data']?['present_count'] ?? 0;
         final absentCount = result['data']?['absent_count'] ?? 0;
+        
+        // تحديث حالة الجلسة المحلية
+        if (_currentSession != null && _currentSession!['session'] != null) {
+          try {
+            await DatabaseService.instance.updateSessionStatus(
+              _currentSession!['session']['id'],
+              'closed',
+            );
+          } catch (e) {
+            print('Error updating session status locally: $e');
+          }
+        }
         
         await _notificationService.showSessionClosed(presentCount, absentCount);
         

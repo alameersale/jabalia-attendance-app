@@ -964,8 +964,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Future<void> _markAttendance(Employee employee, bool isEarly) async {
     final provider = context.read<AttendanceProvider>();
     
-    if (!provider.hasActiveSession && provider.isOnline) {
+    // في الوضع المتصل، يجب أن تكون هناك جلسة نشطة على السيرفر
+    // في الوضع غير المتصل، يمكن تسجيل الحضور إذا كانت هناك جلسة محلية
+    if (provider.isOnline && !provider.hasActiveSession) {
       _showSnackBar('لا توجد جلسة نشطة', isError: true);
+      return;
+    }
+    
+    // في الوضع غير المتصل، تحقق من وجود جلسة محلية
+    if (!provider.isOnline && !provider.hasActiveSession) {
+      _showSnackBar('لا توجد جلسة نشطة محلياً', isError: true);
       return;
     }
     

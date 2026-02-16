@@ -1,0 +1,80 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'flutter_attendance_app/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0'
+          channel: 'stable'
+          cache: true
+      
+      - name: Get dependencies
+        working-directory: flutter_attendance_app
+        run: flutter pub get
+      
+      - name: Build APK
+        working-directory: flutter_attendance_app
+        run: flutter build apk --release --split-per-abi
+      
+      - name: Build Universal APK
+        working-directory: flutter_attendance_app
+        run: flutter build apk --release
+      
+      - name: Upload ARM64 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-arm64-v8a-release
+          path: flutter_attendance_app/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+      
+      - name: Upload ARMv7 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-armeabi-v7a-release
+          path: flutter_attendance_app/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+      
+      - name: Upload x86_64 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-x86_64-release
+          path: flutter_attendance_app/build/app/outputs/flutter-apk/app-x86_64-release.apk
+      
+      - name: Upload Universal APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-universal-release
+          path: flutter_attendance_app/build/app/outputs/flutter-apk/app-release.apk
+      
+      - name: Create Release Info
+        working-directory: flutter_attendance_app
+        run: |
+          echo "# Build Information" > build-info.md
+          echo "Build Date: $(date)" >> build-info.md
+          echo "Flutter Version: $(flutter --version | head -n 1)" >> build-info.md
+          echo "App Version: $(grep 'version:' pubspec.yaml | cut -d ' ' -f 2)" >> build-info.md
+      
+      - name: Upload Build Info
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-info
+          path: flutter_attendance_app/build-info.md

@@ -357,23 +357,25 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             const SizedBox(height: 8),
             TextFormField(
               controller: _usernameController,
-              keyboardType: TextInputType.text,
+              keyboardType: TextInputType.emailAddress,
               textDirection: TextDirection.ltr,
               textAlign: TextAlign.right,
               style: GoogleFonts.cairo(
                 fontSize: 16,
+                fontWeight: FontWeight.w500,
                 color: const Color(0xFF1E293B),
               ),
               decoration: InputDecoration(
                 hintText: 'البريد / الجوال / رقم الهوية',
                 hintStyle: GoogleFonts.cairo(
                   color: const Color(0xFF94A3B8),
+                  fontSize: 14,
                 ),
                 prefixIcon: Container(
                   margin: const EdgeInsets.all(12),
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0D9488).withOpacity(0.1),
+                    color: const Color(0xFF0D9488).withOpacity(0.15),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
@@ -383,24 +385,28 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   ),
                 ),
                 filled: true,
-                fillColor: const Color(0xFFF8FAFC),
+                fillColor: Colors.white,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  borderSide: const BorderSide(color: Color(0xFFCBD5E1), width: 1.5),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  borderSide: const BorderSide(color: Color(0xFFCBD5E1), width: 1.5),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Color(0xFF0D9488), width: 2),
+                  borderSide: const BorderSide(color: Color(0xFF0D9488), width: 2.5),
                 ),
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Color(0xFFDC2626)),
+                  borderSide: const BorderSide(color: Color(0xFFDC2626), width: 1.5),
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                focusedErrorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(color: Color(0xFFDC2626), width: 2.5),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -428,19 +434,21 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               textAlign: TextAlign.right,
               style: GoogleFonts.cairo(
                 fontSize: 16,
+                fontWeight: FontWeight.w500,
                 color: const Color(0xFF1E293B),
               ),
               decoration: InputDecoration(
                 hintText: '••••••••',
                 hintStyle: GoogleFonts.cairo(
                   color: const Color(0xFF94A3B8),
+                  fontSize: 14,
                   letterSpacing: 3,
                 ),
                 prefixIcon: Container(
                   margin: const EdgeInsets.all(12),
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0D9488).withOpacity(0.1),
+                    color: const Color(0xFF0D9488).withOpacity(0.15),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
@@ -455,6 +463,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         ? Icons.visibility_off_outlined
                         : Icons.visibility_outlined,
                     color: const Color(0xFF64748B),
+                    size: 24,
                   ),
                   onPressed: () {
                     setState(() {
@@ -463,24 +472,28 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   },
                 ),
                 filled: true,
-                fillColor: const Color(0xFFF8FAFC),
+                fillColor: Colors.white,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  borderSide: const BorderSide(color: Color(0xFFCBD5E1), width: 1.5),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  borderSide: const BorderSide(color: Color(0xFFCBD5E1), width: 1.5),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Color(0xFF0D9488), width: 2),
+                  borderSide: const BorderSide(color: Color(0xFF0D9488), width: 2.5),
                 ),
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Color(0xFFDC2626)),
+                  borderSide: const BorderSide(color: Color(0xFFDC2626), width: 1.5),
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                focusedErrorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(color: Color(0xFFDC2626), width: 2.5),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {

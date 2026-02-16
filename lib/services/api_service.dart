@@ -186,10 +186,11 @@ class ApiService {
       final response = await http.get(
         Uri.parse('${ApiConfig.baseUrl}${ApiConfig.session}'),
         headers: headers,
-      ).timeout(const Duration(seconds: 5));
+      ).timeout(const Duration(seconds: 3));
       
       return response.statusCode == 200;
     } catch (e) {
+      // أي خطأ يعني عدم وجود اتصال
       return false;
     }
   }

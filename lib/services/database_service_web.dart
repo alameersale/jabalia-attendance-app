@@ -95,6 +95,88 @@ class DatabasePlatform {
     return records.where((r) => !r.isSynced).length;
   }
 
+  // ==================== Sessions ====================
+
+  Future<void> saveSession(Map<String, dynamic> session) async {
+    final sessions = await _getAllSessions();
+    final deviceId = await _getDeviceId();
+    
+    final newSession = {
+      'id': session['id'],
+      'session_date': session['session_date'] ?? DateTime.now().toIso8601String().substring(0, 10),
+      'start_time': session['start_time'],
+      'session_type': session['session_type'],
+      'status': session['status'],
+      'created_at': DateTime.now().toIso8601String(),
+      'device_id': deviceId,
+    };
+    
+    // تحديث أو إضافة الجلسة
+    sessions.removeWhere((s) => s['session_date'] == newSession['session_date'] && s['device_id'] == deviceId);
+    sessions.add(newSession);
+    
+    await _saveAllSessions(sessions);
+  }
+
+  Future<Map<String, dynamic>?> getCurrentSession() async {
+    final sessions = await _getAllSessions();
+    final deviceId = await _getDeviceId();
+    final today = DateTime.now().toIso8601String().substring(0, 10);
+    
+    final session = sessions.firstWhere(
+      (s) => s['session_date'] == today && s['device_id'] == deviceId,
+      orElse: () => null,
+    );
+    
+    if (session != null) {
+      return {
+        'id': session['id'],
+        'session': {
+          'id': session['id'],
+          'session_date': session['session_date'],
+          'start_time': session['start_time'],
+          'session_type': session['session_type'],
+          'status': session['status'],
+        },
+      };
+    }
+    return null;
+  }
+
+  Future<void> updateSessionStatus(int sessionId, String status) async {
+    final sessions = await _getAllSessions();
+    for (var session in sessions) {
+      if (session['id'] == sessionId) {
+        session['status'] = status;
+        break;
+      }
+    }
+    await _saveAllSessions(sessions);
+  }
+
+  Future<void> clearOldSessions() async {
+    final sessions = await _getAllSessions();
+    final today = DateTime.now().toIso8601String().substring(0, 10);
+    sessions.removeWhere((s) => s['session_date'] != today);
+    await _saveAllSessions(sessions);
+  }
+
+  Future<List<Map<String, dynamic>>> _getAllSessions() async {
+    final data = _prefs!.getString('sessions');
+    if (data == null) return [];
+    
+    final List<dynamic> list = jsonDecode(data);
+    return list.map((map) => Map<String, dynamic>.from(map)).toList();
+  }
+
+  Future<void> _saveAllSessions(List<Map<String, dynamic>> sessions) async {
+    await _prefs!.setString('sessions', jsonEncode(sessions));
+  }
+
+  Future<String> _getDeviceId() async {
+    return 'web_device';
+  }
+
   Future<List<AttendanceRecord>> _getAllRecords() async {
     final data = _prefs!.getString('attendance_records');
     if (data == null) return [];

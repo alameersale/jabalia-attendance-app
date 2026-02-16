@@ -13,8 +13,9 @@ class DatabasePlatform {
 
     _database = await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _createDB,
+      onUpgrade: _upgradeDB,
     );
   }
 
@@ -40,6 +41,36 @@ class DatabasePlatform {
         is_synced INTEGER DEFAULT 0
       )
     ''');
+
+    await db.execute('''
+      CREATE TABLE sessions (
+        id INTEGER PRIMARY KEY,
+        session_date TEXT NOT NULL,
+        start_time TEXT NOT NULL,
+        session_type TEXT NOT NULL,
+        status TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        device_id TEXT,
+        UNIQUE(session_date, device_id)
+      )
+    ''');
+  }
+
+  Future _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS sessions (
+          id INTEGER PRIMARY KEY,
+          session_date TEXT NOT NULL,
+          start_time TEXT NOT NULL,
+          session_type TEXT NOT NULL,
+          status TEXT NOT NULL,
+          created_at TEXT NOT NULL,
+          device_id TEXT,
+          UNIQUE(session_date, device_id)
+        )
+      ''');
+    }
   }
 
   Future<void> cacheEmployees(List<Employee> employees) async {
@@ -130,5 +161,78 @@ class DatabasePlatform {
       'SELECT COUNT(*) as count FROM attendance_records WHERE is_synced = 0'
     );
     return result.first['count'] as int;
+  }
+
+  // ==================== Sessions ====================
+
+  Future<void> saveSession(Map<String, dynamic> session) async {
+    final db = _database!;
+    final deviceId = await _getDeviceId();
+    
+    await db.insert(
+      'sessions',
+      {
+        'id': session['id'],
+        'session_date': session['session_date'] ?? DateTime.now().toIso8601String().substring(0, 10),
+        'start_time': session['start_time'],
+        'session_type': session['session_type'],
+        'status': session['status'],
+        'created_at': DateTime.now().toIso8601String(),
+        'device_id': deviceId,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<Map<String, dynamic>?> getCurrentSession() async {
+    final db = _database!;
+    final deviceId = await _getDeviceId();
+    final today = DateTime.now().toIso8601String().substring(0, 10);
+    
+    final maps = await db.query(
+      'sessions',
+      where: 'session_date = ? AND device_id = ?',
+      whereArgs: [today, deviceId],
+    );
+    
+    if (maps.isNotEmpty) {
+      final session = maps.first;
+      return {
+        'id': session['id'],
+        'session': {
+          'id': session['id'],
+          'session_date': session['session_date'],
+          'start_time': session['start_time'],
+          'session_type': session['session_type'],
+          'status': session['status'],
+        },
+      };
+    }
+    return null;
+  }
+
+  Future<void> updateSessionStatus(int sessionId, String status) async {
+    final db = _database!;
+    await db.update(
+      'sessions',
+      {'status': status},
+      where: 'id = ?',
+      whereArgs: [sessionId],
+    );
+  }
+
+  Future<void> clearOldSessions() async {
+    final db = _database!;
+    final today = DateTime.now().toIso8601String().substring(0, 10);
+    await db.delete(
+      'sessions',
+      where: 'session_date < ?',
+      whereArgs: [today],
+    );
+  }
+
+  Future<String> _getDeviceId() async {
+    // استخدام معرف فريد للجهاز
+    return 'mobile_device';
   }
 }

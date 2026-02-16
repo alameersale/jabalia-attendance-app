@@ -54,4 +54,22 @@ class DatabaseService {
   Future<int> getUnsyncedCount() async {
     return await _platform.getUnsyncedCount();
   }
+
+  // ==================== Sessions ====================
+
+  Future<void> saveSession(Map<String, dynamic> session) async {
+    await _platform.saveSession(session);
+  }
+
+  Future<Map<String, dynamic>?> getCurrentSession() async {
+    return await _platform.getCurrentSession();
+  }
+
+  Future<void> updateSessionStatus(int sessionId, String status) async {
+    await _platform.updateSessionStatus(sessionId, status);
+  }
+
+  Future<void> clearOldSessions() async {
+    await _platform.clearOldSessions();
+  }
 }
