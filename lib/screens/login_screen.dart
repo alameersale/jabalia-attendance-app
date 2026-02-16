@@ -950,7 +950,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  'الإصدار 1.0.0',
+                  'الإصدار 2.1.1',
                   style: GoogleFonts.cairo(
                     color: Colors.white.withOpacity(0.9),
                     fontSize: 12,

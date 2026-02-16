@@ -33,6 +33,10 @@ jobs:
         working-directory: flutter_attendance_app
         run: flutter pub get
       
+      - name: Generate launcher icons
+        working-directory: flutter_attendance_app
+        run: flutter pub run flutter_launcher_icons
+      
       - name: Build APK
         working-directory: flutter_attendance_app
         run: flutter build apk --release --split-per-abi
