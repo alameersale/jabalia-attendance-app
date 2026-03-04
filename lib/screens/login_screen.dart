@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../providers/auth_provider.dart';
 import '../main.dart';
 
-/// صفحة تسجيل الدخول - مبنية من الصفر، حقول واضحة على أندرويد
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -17,8 +16,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
-  String? _usernameError;
-  String? _passwordError;
+  String? _errorMessage;
 
   @override
   void dispose() {
@@ -27,62 +25,29 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _clearError() {
-    if (_usernameError != null || _passwordError != null) {
-      setState(() {
-        _usernameError = null;
-        _passwordError = null;
-      });
-    }
-  }
-
   Future<void> _login() async {
     final user = _usernameController.text.trim();
     final pass = _passwordController.text;
 
-    setState(() {
-      _usernameError = user.isEmpty ? 'يرجى إدخال اسم المستخدم' : null;
-      _passwordError = pass.isEmpty ? 'يرجى إدخال كلمة المرور' : null;
-    });
-    if (user.isEmpty || pass.isEmpty) return;
+    if (user.isEmpty || pass.isEmpty) {
+      setState(() {
+        _errorMessage = 'يرجى إدخال اسم المستخدم وكلمة المرور';
+      });
+      return;
+    }
 
+    setState(() => _errorMessage = null);
     FocusScope.of(context).unfocus();
+
     final auth = context.read<AuthProvider>();
     final success = await auth.login(user, pass);
 
     if (!success && mounted) {
       HapticFeedback.mediumImpact();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(auth.error ?? 'فشل تسجيل الدخول', style: GoogleFonts.cairo()),
-          backgroundColor: AppColors.danger,
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(16),
-        ),
-      );
+      setState(() {
+        _errorMessage = auth.error ?? 'فشل تسجيل الدخول';
+      });
     }
-  }
-
-  /// تزيين الحقل كما في الواجهة الرئيسية - يعمل على أندرويد
-  InputDecoration _fieldDecoration({
-    required String hintText,
-    required IconData prefixIcon,
-    Widget? suffix,
-    bool hasError = false,
-  }) {
-    final borderColor = hasError ? AppColors.danger : const Color(0xFFDDDDDD);
-    return InputDecoration(
-      hintText: hintText,
-      hintStyle: GoogleFonts.cairo(fontSize: 14, color: const Color(0xFF888888)),
-      prefixIcon: Icon(prefixIcon, color: AppColors.primary, size: 22),
-      suffixIcon: suffix,
-      filled: true,
-      fillColor: const Color(0xFFF5F5F5),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: borderColor)),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: borderColor)),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-    );
   }
 
   @override
@@ -92,14 +57,13 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 28),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // الشعار
                 Container(
-                  width: 90,
-                  height: 90,
+                  width: 80,
+                  height: 80,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(18),
@@ -107,144 +71,184 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(18),
                     child: Padding(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(10),
                       child: Image.asset(
                         'assets/images/logo.png',
                         fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => const Icon(Icons.account_balance_rounded, size: 44, color: AppColors.primary),
+                        errorBuilder: (_, __, ___) => const Icon(
+                          Icons.account_balance_rounded,
+                          size: 40,
+                          color: AppColors.primary,
+                        ),
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
                 Text(
                   'الحضور والانصراف',
-                  style: GoogleFonts.cairo(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: GoogleFonts.cairo(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 Text(
                   'بلدية جباليا النزلة',
-                  style: GoogleFonts.cairo(fontSize: 14, color: Colors.white70),
+                  style: GoogleFonts.cairo(fontSize: 13, color: Colors.white70),
                 ),
                 const SizedBox(height: 28),
 
-                // بطاقة الدخول - بدون Form لتجنب ثيم الحقول على أندرويد
-                Material(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  elevation: 4,
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.login_rounded, color: AppColors.primary, size: 26),
-                            const SizedBox(width: 10),
-                            Text(
-                              'تسجيل الدخول',
-                              style: GoogleFonts.cairo(fontSize: 20, fontWeight: FontWeight.bold, color: const Color(0xFF1A1A1A)),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'تسجيل الدخول',
+                        style: GoogleFonts.cairo(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 20),
+
+                      TextField(
+                        controller: _usernameController,
+                        keyboardType: TextInputType.text,
+                        textDirection: TextDirection.ltr,
+                        textAlign: TextAlign.right,
+                        style: const TextStyle(fontSize: 16, color: Colors.black87),
+                        decoration: InputDecoration(
+                          hintText: 'البريد / الجوال / رقم الهوية',
+                          hintStyle: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                          prefixIcon: const Icon(Icons.person_outline, color: AppColors.primary),
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.grey[300]!),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.grey[300]!),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                          ),
+                        ),
+                        onChanged: (_) {
+                          if (_errorMessage != null) setState(() => _errorMessage = null);
+                        },
+                      ),
+                      const SizedBox(height: 14),
+
+                      TextField(
+                        controller: _passwordController,
+                        obscureText: _obscurePassword,
+                        textDirection: TextDirection.ltr,
+                        textAlign: TextAlign.right,
+                        style: const TextStyle(fontSize: 16, color: Colors.black87),
+                        decoration: InputDecoration(
+                          hintText: 'كلمة المرور',
+                          hintStyle: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                          prefixIcon: const Icon(Icons.lock_outline, color: AppColors.primary),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                              color: Colors.grey[600],
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-
-                        // حقل اسم المستخدم - TextField مع تزيين صريح
-                        TextField(
-                          controller: _usernameController,
-                          keyboardType: TextInputType.emailAddress,
-                          textDirection: TextDirection.ltr,
-                          textAlign: TextAlign.right,
-                          onChanged: (_) => _clearError(),
-                          cursorColor: AppColors.primary,
-                          style: GoogleFonts.cairo(fontSize: 16, color: const Color(0xFF1A1A1A)),
-                          decoration: _fieldDecoration(
-                            hintText: 'البريد / الجوال / رقم الهوية',
-                            prefixIcon: Icons.person_outline_rounded,
-                            hasError: _usernameError != null,
+                            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.grey[300]!),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.grey[300]!),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: AppColors.primary, width: 2),
                           ),
                         ),
-                        if (_usernameError != null) ...[
-                          const SizedBox(height: 6),
-                          Text(
-                            _usernameError!,
-                            style: GoogleFonts.cairo(fontSize: 12, color: AppColors.danger),
-                          ),
-                        ],
-                        const SizedBox(height: 16),
+                        onSubmitted: (_) => _login(),
+                        onChanged: (_) {
+                          if (_errorMessage != null) setState(() => _errorMessage = null);
+                        },
+                      ),
 
-                        // حقل كلمة المرور
-                        TextField(
-                          controller: _passwordController,
-                          obscureText: _obscurePassword,
-                          textDirection: TextDirection.ltr,
-                          textAlign: TextAlign.right,
-                          onChanged: (_) => _clearError(),
-                          onSubmitted: (_) => _login(),
-                          cursorColor: AppColors.primary,
-                          style: GoogleFonts.cairo(fontSize: 16, color: const Color(0xFF1A1A1A)),
-                          decoration: _fieldDecoration(
-                            hintText: '••••••••',
-                            prefixIcon: Icons.lock_outline_rounded,
-                            hasError: _passwordError != null,
-                            suffix: IconButton(
-                              icon: Icon(
-                                _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                                color: const Color(0xFF666666),
-                                size: 22,
-                              ),
-                              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                            ),
+                      if (_errorMessage != null) ...[
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.red[50],
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                        ),
-                        if (_passwordError != null) ...[
-                          const SizedBox(height: 6),
-                          Text(
-                            _passwordError!,
-                            style: GoogleFonts.cairo(fontSize: 12, color: AppColors.danger),
+                          child: Text(
+                            _errorMessage!,
+                            style: GoogleFonts.cairo(fontSize: 13, color: Colors.red[700]),
+                            textAlign: TextAlign.center,
                           ),
-                        ],
-                        const SizedBox(height: 24),
-
-                        // زر الدخول
-                        Consumer<AuthProvider>(
-                          builder: (context, auth, _) {
-                            return SizedBox(
-                              height: 52,
-                              child: ElevatedButton(
-                                onPressed: auth.isLoading ? null : _login,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  foregroundColor: Colors.white,
-                                  disabledBackgroundColor: AppColors.primary.withOpacity(0.6),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                                  elevation: 0,
-                                ),
-                                child: auth.isLoading
-                                    ? const SizedBox(
-                                        width: 24,
-                                        height: 24,
-                                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                                      )
-                                    : Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          const Icon(Icons.login_rounded, size: 22),
-                                          const SizedBox(width: 10),
-                                          Text('تسجيل الدخول', style: GoogleFonts.cairo(fontSize: 17, fontWeight: FontWeight.bold)),
-                                        ],
-                                      ),
-                              ),
-                            );
-                          },
                         ),
                       ],
-                    ),
+
+                      const SizedBox(height: 20),
+
+                      Consumer<AuthProvider>(
+                        builder: (context, auth, _) {
+                          return SizedBox(
+                            height: 50,
+                            child: ElevatedButton(
+                              onPressed: auth.isLoading ? null : _login,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 0,
+                              ),
+                              child: auth.isLoading
+                                  ? const SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : Text(
+                                      'تسجيل الدخول',
+                                      style: GoogleFonts.cairo(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 24),
-                Text('الإصدار 2.1.1', style: GoogleFonts.cairo(fontSize: 12, color: Colors.white54)),
+                const SizedBox(height: 20),
+                Text(
+                  'الإصدار 2.2.0',
+                  style: GoogleFonts.cairo(fontSize: 11, color: Colors.white54),
+                ),
               ],
             ),
           ),

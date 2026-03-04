@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:math' as math;
-
 import 'providers/auth_provider.dart';
 import 'providers/attendance_provider.dart';
 import 'providers/sync_provider.dart';
@@ -294,45 +292,8 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// ============================================
-// شاشة التحميل المتحركة
-// ============================================
-class AuthWrapper extends StatefulWidget {
+class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
-
-  @override
-  State<AuthWrapper> createState() => _AuthWrapperState();
-}
-
-class _AuthWrapperState extends State<AuthWrapper> with TickerProviderStateMixin {
-  late AnimationController _pulseController;
-  late AnimationController _rotateController;
-  late Animation<double> _pulseAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    )..repeat(reverse: true);
-    
-    _rotateController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 3),
-    )..repeat();
-    
-    _pulseAnimation = Tween<double>(begin: 0.95, end: 1.05).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _pulseController.dispose();
-    _rotateController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -340,118 +301,43 @@ class _AuthWrapperState extends State<AuthWrapper> with TickerProviderStateMixin
       builder: (context, auth, _) {
         if (auth.isLoading) {
           return Scaffold(
-            body: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFF0D47A1),
-                    Color(0xFF1565C0),
-                    Color(0xFF1976D2),
-                    Color(0xFF1E88E5),
-                  ],
-                  stops: [0.0, 0.3, 0.6, 1.0],
-                ),
-              ),
-              child: Stack(
+            backgroundColor: AppColors.primaryDark,
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // فقاعات خلفية متحركة
-                  ...List.generate(8, (index) => _buildFloatingBubble(index)),
-                  
-                  // المحتوى الرئيسي
-                  Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // شعار متحرك مع نبضات
-                        ScaleTransition(
-                          scale: _pulseAnimation,
-                          child: Container(
-                            width: 120,
-                            height: 120,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(30),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.primaryLight.withOpacity(0.4),
-                                  blurRadius: 40,
-                                  spreadRadius: 5,
-                                  offset: const Offset(0, 10),
-                                ),
-                              ],
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(30),
-                              child: Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Image.asset(
-                                  'assets/images/logo.png',
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
-                            ),
+                  Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Image.asset(
+                          'assets/images/logo.png',
+                          fit: BoxFit.contain,
+                          errorBuilder: (_, __, ___) => const Icon(
+                            Icons.account_balance_rounded,
+                            size: 44,
+                            color: AppColors.primary,
                           ),
                         ),
-                        const SizedBox(height: 40),
-                        
-                        // مؤشر تحميل دائري متحرك
-                        AnimatedBuilder(
-                          animation: _rotateController,
-                          builder: (context, child) {
-                            return Transform.rotate(
-                              angle: _rotateController.value * 2 * math.pi,
-                              child: Container(
-                                width: 50,
-                                height: 50,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white.withOpacity(0.3),
-                                    width: 3,
-                                  ),
-                                ),
-                                child: Stack(
-                                  children: [
-                                    Positioned(
-                                      top: 0,
-                                      left: 20,
-                                      child: Container(
-                                        width: 10,
-                                        height: 10,
-                                        decoration: const BoxDecoration(
-                                          color: Colors.white,
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 30),
-                        
-                        // نص التحميل
-                        Text(
-                          'جاري التحميل...',
-                          style: GoogleFonts.cairo(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'بلدية جباليا النزلة',
-                          style: GoogleFonts.cairo(
-                            color: Colors.white.withOpacity(0.7),
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  const CircularProgressIndicator(color: Colors.white),
+                  const SizedBox(height: 24),
+                  Text(
+                    'جاري التحميل...',
+                    style: GoogleFonts.cairo(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
@@ -459,45 +345,13 @@ class _AuthWrapperState extends State<AuthWrapper> with TickerProviderStateMixin
             ),
           );
         }
-        
+
         if (auth.isAuthenticated) {
           return const HomeScreen();
         }
-        
+
         return const LoginScreen();
       },
-    );
-  }
-
-  Widget _buildFloatingBubble(int index) {
-    final random = math.Random(index);
-    final size = 20.0 + random.nextDouble() * 60;
-    final left = random.nextDouble() * 400;
-    final top = random.nextDouble() * 800;
-    final opacity = 0.03 + random.nextDouble() * 0.08;
-    
-    return Positioned(
-      left: left,
-      top: top,
-      child: AnimatedBuilder(
-        animation: _pulseController,
-        builder: (context, child) {
-          return Transform.translate(
-            offset: Offset(
-              math.sin(_pulseController.value * math.pi * 2 + index) * 10,
-              math.cos(_pulseController.value * math.pi * 2 + index) * 15,
-            ),
-            child: Container(
-              width: size,
-              height: size,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withOpacity(opacity),
-              ),
-            ),
-          );
-        },
-      ),
     );
   }
 }
