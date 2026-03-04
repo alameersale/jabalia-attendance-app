@@ -61,9 +61,9 @@ class _LoginScreenState extends State<LoginScreen> {
     TextInputType keyboardType = TextInputType.text,
     VoidCallback? onSubmit,
   }) {
-    return ValueListenableBuilder<TextEditingValue>(
-      valueListenable: focusNode,
-      builder: (_, __, ___) {
+    return AnimatedBuilder(
+      animation: focusNode,
+      builder: (_, __) {
         final focused = focusNode.hasFocus;
         return Container(
           height: 54,
@@ -104,7 +104,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   onSubmitted: (_) => onSubmit?.call(),
                   onChanged: (_) {
                     if (_errorMessage != null) setState(() => _errorMessage = null);
-                    setState(() {}); // لتحديث border عند الفوكس
                   },
                 ),
               ),

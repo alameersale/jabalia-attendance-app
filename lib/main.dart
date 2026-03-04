@@ -105,7 +105,6 @@ class MyApp extends StatelessWidget {
             primary: AppColors.primary,
             secondary: AppColors.secondary,
             surface: Colors.white,
-            background: AppColors.gray50,
             error: AppColors.danger,
           ),
           useMaterial3: false,
