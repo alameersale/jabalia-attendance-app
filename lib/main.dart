@@ -108,7 +108,7 @@ class MyApp extends StatelessWidget {
             background: AppColors.gray50,
             error: AppColors.danger,
           ),
-          useMaterial3: true,
+          useMaterial3: false,
           
           textTheme: arabicTextTheme.copyWith(
             displayLarge: arabicTextTheme.displayLarge?.copyWith(
@@ -191,41 +191,6 @@ class MyApp extends StatelessWidget {
               fontWeight: FontWeight.bold,
               color: AppColors.gray900,
             ),
-          ),
-          
-          inputDecorationTheme: InputDecorationTheme(
-            filled: true,
-            fillColor: AppColors.gray100,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(color: AppColors.gray300, width: 1),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(color: AppColors.primary, width: 2),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(color: AppColors.danger, width: 1),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(color: AppColors.danger, width: 2),
-            ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-            labelStyle: GoogleFonts.cairo(
-              color: AppColors.gray600,
-              fontWeight: FontWeight.w500,
-            ),
-            hintStyle: GoogleFonts.cairo(
-              color: AppColors.gray500,
-            ),
-            prefixIconColor: AppColors.gray600,
-            suffixIconColor: AppColors.gray600,
           ),
           
           bottomNavigationBarTheme: BottomNavigationBarThemeData(
