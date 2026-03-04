@@ -19,7 +19,9 @@ class AppColors {
   static const Color success      = Color(0xFF2E7D32);
   static const Color successLight = Color(0xFF4CAF50);
   static const Color warning      = Color(0xFFFFC107);
+  static const Color warningDark  = Color(0xFFE0A800);
   static const Color danger       = Color(0xFFD32F2F);
+  static const Color dangerDark   = Color(0xFFC62828);
   static const Color gray50  = Color(0xFFF8F9FA);
   static const Color gray100 = Color(0xFFF1F3F5);
   static const Color gray200 = Color(0xFFE9ECEF);
