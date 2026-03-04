@@ -15,8 +15,6 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _usernameFocus = FocusNode();
-  final _passwordFocus = FocusNode();
   bool _obscurePassword = true;
   String? _errorMessage;
 
@@ -24,8 +22,6 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
-    _usernameFocus.dispose();
-    _passwordFocus.dispose();
     super.dispose();
   }
 
@@ -46,73 +42,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (!success && mounted) {
       HapticFeedback.mediumImpact();
-      setState(() => _errorMessage = auth.error ?? 'فشل تسجيل الدخول. تحقق من البيانات.');
+      setState(() => _errorMessage = auth.error ?? 'فشل تسجيل الدخول');
     }
   }
 
-  /// حقل إدخال مبني يدوياً بدون InputDecoration لضمان الظهور الصحيح على أندرويد
-  Widget _buildField({
-    required TextEditingController controller,
-    required FocusNode focusNode,
-    required String hint,
-    required IconData icon,
-    bool obscure = false,
-    Widget? trailing,
-    TextInputType keyboardType = TextInputType.text,
-    VoidCallback? onSubmit,
-  }) {
-    return AnimatedBuilder(
-      animation: focusNode,
-      builder: (_, __) {
-        final focused = focusNode.hasFocus;
-        return Container(
-          height: 54,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: focused ? AppColors.primary : const Color(0xFFDDDDDD),
-              width: focused ? 2 : 1,
-            ),
-          ),
-          child: Row(
-            children: [
-              const SizedBox(width: 14),
-              Icon(icon, color: AppColors.primary, size: 22),
-              const SizedBox(width: 10),
-              Expanded(
-                child: TextField(
-                  controller: controller,
-                  focusNode: focusNode,
-                  obscureText: obscure,
-                  keyboardType: keyboardType,
-                  textDirection: TextDirection.ltr,
-                  textAlign: TextAlign.right,
-                  style: GoogleFonts.cairo(
-                    fontSize: 15,
-                    color: Colors.black87,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  cursorColor: AppColors.primary,
-                  decoration: InputDecoration.collapsed(
-                    hintText: hint,
-                    hintStyle: GoogleFonts.cairo(
-                      fontSize: 14,
-                      color: Colors.grey[500],
-                    ),
-                  ),
-                  onSubmitted: (_) => onSubmit?.call(),
-                  onChanged: (_) {
-                    if (_errorMessage != null) setState(() => _errorMessage = null);
-                  },
-                ),
-              ),
-              if (trailing != null) trailing,
-              const SizedBox(width: 4),
-            ],
-          ),
-        );
-      },
+  static OutlineInputBorder _border(Color color, {double width = 1.0}) {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(color: color, width: width),
     );
   }
 
@@ -124,24 +61,17 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // الشعار
                 Container(
-                  width: 84,
-                  height: 84,
+                  width: 88,
+                  height: 88,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(20),
@@ -152,7 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         fit: BoxFit.contain,
                         errorBuilder: (_, __, ___) => const Icon(
                           Icons.account_balance_rounded,
-                          size: 42,
+                          size: 44,
                           color: AppColors.primary,
                         ),
                       ),
@@ -160,7 +90,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 14),
-
                 Text(
                   'الحضور والانصراف',
                   style: GoogleFonts.cairo(
@@ -173,51 +102,103 @@ class _LoginScreenState extends State<LoginScreen> {
                   'بلدية جباليا النزلة',
                   style: GoogleFonts.cairo(fontSize: 13, color: Colors.white70),
                 ),
-                const SizedBox(height: 32),
-
-                // عنوان القسم
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    'تسجيل الدخول',
-                    style: GoogleFonts.cairo(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 36),
 
                 // حقل اسم المستخدم
-                _buildField(
+                TextField(
                   controller: _usernameController,
-                  focusNode: _usernameFocus,
-                  hint: 'البريد / الجوال / رقم الهوية',
-                  icon: Icons.person_outline_rounded,
                   keyboardType: TextInputType.emailAddress,
-                  onSubmit: () => FocusScope.of(context).requestFocus(_passwordFocus),
+                  textDirection: TextDirection.ltr,
+                  textAlign: TextAlign.right,
+                  style: const TextStyle(
+                    color: Color(0xFF1A1A1A),
+                    fontSize: 16,
+                    fontFamily: 'sans-serif',
+                  ),
+                  cursorColor: AppColors.primary,
+                  onChanged: (_) {
+                    if (_errorMessage != null) {
+                      setState(() => _errorMessage = null);
+                    }
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'البريد / الجوال / رقم الهوية',
+                    hintStyle: const TextStyle(
+                      color: Color(0xFF999999),
+                      fontSize: 14,
+                    ),
+                    prefixIcon: const Icon(
+                      Icons.person_outline_rounded,
+                      color: AppColors.primary,
+                      size: 22,
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+                    border: _border(const Color(0xFFCCCCCC)),
+                    enabledBorder: _border(const Color(0xFFCCCCCC)),
+                    focusedBorder: _border(AppColors.primary, width: 2),
+                    errorBorder: _border(Colors.red),
+                    focusedErrorBorder: _border(Colors.red, width: 2),
+                  ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
 
                 // حقل كلمة المرور
-                _buildField(
+                TextField(
                   controller: _passwordController,
-                  focusNode: _passwordFocus,
-                  hint: 'كلمة المرور',
-                  icon: Icons.lock_outline_rounded,
-                  obscure: _obscurePassword,
-                  onSubmit: _login,
-                  trailing: GestureDetector(
-                    onTap: () => setState(() => _obscurePassword = !_obscurePassword),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Icon(
-                        _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                        color: Colors.grey[600],
+                  obscureText: _obscurePassword,
+                  textDirection: TextDirection.ltr,
+                  textAlign: TextAlign.right,
+                  style: const TextStyle(
+                    color: Color(0xFF1A1A1A),
+                    fontSize: 16,
+                    fontFamily: 'sans-serif',
+                  ),
+                  cursorColor: AppColors.primary,
+                  onSubmitted: (_) => _login(),
+                  onChanged: (_) {
+                    if (_errorMessage != null) {
+                      setState(() => _errorMessage = null);
+                    }
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'كلمة المرور',
+                    hintStyle: const TextStyle(
+                      color: Color(0xFF999999),
+                      fontSize: 14,
+                    ),
+                    prefixIcon: const Icon(
+                      Icons.lock_outline_rounded,
+                      color: AppColors.primary,
+                      size: 22,
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                        color: const Color(0xFF888888),
                         size: 22,
                       ),
+                      onPressed: () {
+                        setState(() => _obscurePassword = !_obscurePassword);
+                      },
                     ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+                    border: _border(const Color(0xFFCCCCCC)),
+                    enabledBorder: _border(const Color(0xFFCCCCCC)),
+                    focusedBorder: _border(AppColors.primary, width: 2),
+                    errorBorder: _border(Colors.red),
+                    focusedErrorBorder: _border(Colors.red, width: 2),
                   ),
                 ),
 
@@ -226,19 +207,26 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 12),
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
-                      color: Colors.red[900],
+                      color: const Color(0xFFB71C1C),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.error_outline, color: Colors.white, size: 18),
+                        const Icon(Icons.error_outline,
+                            color: Colors.white, size: 18),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             _errorMessage!,
-                            style: GoogleFonts.cairo(fontSize: 13, color: Colors.white),
+                            style: GoogleFonts.cairo(
+                              fontSize: 13,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ],
@@ -264,7 +252,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           elevation: 0,
-                          padding: EdgeInsets.zero,
                         ),
                         child: auth.isLoading
                             ? const SizedBox(
@@ -288,10 +275,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                 ),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 28),
                 Text(
-                  'v2.3.0',
-                  style: GoogleFonts.cairo(fontSize: 11, color: Colors.white30),
+                  'v2.4.0',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Color(0x55FFFFFF),
+                  ),
                 ),
               ],
             ),
