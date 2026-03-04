@@ -11,7 +11,7 @@ class ApiService {
 
   Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
+    return prefs.getString('auth_token');
   }
 
   Future<Map<String, String>> _getHeaders() async {
@@ -25,17 +25,24 @@ class ApiService {
 
   // ==================== Auth ====================
 
-  Future<Map<String, dynamic>> login(String username, String password) async {
+  Future<Map<String, dynamic>> login(String employeeNumber, String password) async {
     try {
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}${ApiConfig.login}'),
         headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-        body: jsonEncode({'username': username, 'password': password}),
+        body: jsonEncode({
+          'username': employeeNumber,       // الـ backend يقبل email/phone/id_number
+          'employee_number': employeeNumber, // دعم إضافي
+          'password': password,
+        }),
       ).timeout(const Duration(seconds: 30));
 
-      return jsonDecode(response.body);
+      final decoded = jsonDecode(response.body);
+      return decoded is Map<String, dynamic>
+          ? decoded
+          : {'success': false, 'message': 'استجابة غير متوقعة من السيرفر'};
     } catch (e) {
-      return {'success': false, 'message': 'خطأ في الاتصال: $e'};
+      return {'success': false, 'message': 'لا يوجد اتصال بالإنترنت'};
     }
   }
 

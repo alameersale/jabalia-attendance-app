@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../providers/auth_provider.dart';
 import '../main.dart';
 
@@ -13,24 +12,26 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _usernameController = TextEditingController();
+  final _employeeController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   String? _errorMessage;
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _employeeController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  Future<void> _login() async {
-    final user = _usernameController.text.trim();
-    final pass = _passwordController.text;
+  Future<void> _submit() async {
+    final employeeNumber = _employeeController.text.trim();
+    final password = _passwordController.text;
 
-    if (user.isEmpty || pass.isEmpty) {
-      setState(() => _errorMessage = 'يرجى إدخال اسم المستخدم وكلمة المرور');
+    if (employeeNumber.isEmpty || password.isEmpty) {
+      setState(() {
+        _errorMessage = 'يرجى إدخال رقم الموظف وكلمة المرور';
+      });
       return;
     }
 
@@ -38,19 +39,14 @@ class _LoginScreenState extends State<LoginScreen> {
     FocusScope.of(context).unfocus();
 
     final auth = context.read<AuthProvider>();
-    final success = await auth.login(user, pass);
+    final success = await auth.login(employeeNumber, password);
 
     if (!success && mounted) {
       HapticFeedback.mediumImpact();
-      setState(() => _errorMessage = auth.error ?? 'فشل تسجيل الدخول');
+      setState(() {
+        _errorMessage = auth.error ?? 'فشل تسجيل الدخول. تحقق من البيانات.';
+      });
     }
-  }
-
-  static OutlineInputBorder _border(Color color, {double width = 1.0}) {
-    return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: BorderSide(color: color, width: width),
-    );
   }
 
   @override
@@ -61,76 +57,68 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                // الشعار
-                Container(
-                  width: 88,
-                  height: 88,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: Image.asset(
-                        'assets/images/logo.png',
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => const Icon(
-                          Icons.account_balance_rounded,
-                          size: 44,
-                          color: AppColors.primary,
-                        ),
-                      ),
+                // 1. الشعار
+                Image.asset(
+                  'assets/images/logo.png',
+                  width: 80,
+                  height: 80,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) => Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Icon(
+                      Icons.account_balance,
+                      size: 44,
+                      color: AppColors.primary,
                     ),
                   ),
                 ),
-                const SizedBox(height: 14),
-                Text(
+                const SizedBox(height: 16),
+
+                // 2. العنوان
+                const Text(
                   'الحضور والانصراف',
-                  style: GoogleFonts.cairo(
+                  style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
-                Text(
-                  'بلدية جباليا النزلة',
-                  style: GoogleFonts.cairo(fontSize: 13, color: Colors.white70),
-                ),
-                const SizedBox(height: 36),
+                const SizedBox(height: 4),
 
-                // حقل اسم المستخدم
-                TextField(
-                  controller: _usernameController,
-                  keyboardType: TextInputType.emailAddress,
-                  textDirection: TextDirection.ltr,
-                  textAlign: TextAlign.right,
-                  style: const TextStyle(
-                    color: Color(0xFF1A1A1A),
-                    fontSize: 16,
-                    fontFamily: 'sans-serif',
+                // 3. العنوان الفرعي
+                const Text(
+                  'بلدية جباليا النزلة',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xCCFFFFFF),
                   ),
-                  cursorColor: AppColors.primary,
-                  onChanged: (_) {
-                    if (_errorMessage != null) {
-                      setState(() => _errorMessage = null);
-                    }
-                  },
+                ),
+                const SizedBox(height: 40),
+
+                // 4. حقل رقم الموظف
+                TextField(
+                  controller: _employeeController,
+                  keyboardType: TextInputType.text,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  style: const TextStyle(
+                    color: Colors.black87,
+                    fontSize: 16,
+                  ),
                   decoration: InputDecoration(
-                    hintText: 'البريد / الجوال / رقم الهوية',
+                    hintText: 'رقم الموظف / البريد / الجوال',
                     hintStyle: const TextStyle(
-                      color: Color(0xFF999999),
-                      fontSize: 14,
-                    ),
-                    prefixIcon: const Icon(
-                      Icons.person_outline_rounded,
-                      color: AppColors.primary,
-                      size: 22,
+                      color: Color(0xFF9E9E9E),
+                      fontSize: 15,
                     ),
                     filled: true,
                     fillColor: Colors.white,
@@ -138,51 +126,52 @@ class _LoginScreenState extends State<LoginScreen> {
                       horizontal: 16,
                       vertical: 16,
                     ),
-                    border: _border(const Color(0xFFCCCCCC)),
-                    enabledBorder: _border(const Color(0xFFCCCCCC)),
-                    focusedBorder: _border(AppColors.primary, width: 2),
-                    errorBorder: _border(Colors.red),
-                    focusedErrorBorder: _border(Colors.red, width: 2),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFBDBDBD)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFBDBDBD)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: AppColors.primaryLight,
+                        width: 2,
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 14),
-
-                // حقل كلمة المرور
-                TextField(
-                  controller: _passwordController,
-                  obscureText: _obscurePassword,
-                  textDirection: TextDirection.ltr,
-                  textAlign: TextAlign.right,
-                  style: const TextStyle(
-                    color: Color(0xFF1A1A1A),
-                    fontSize: 16,
-                    fontFamily: 'sans-serif',
-                  ),
-                  cursorColor: AppColors.primary,
-                  onSubmitted: (_) => _login(),
                   onChanged: (_) {
                     if (_errorMessage != null) {
                       setState(() => _errorMessage = null);
                     }
                   },
+                ),
+                const SizedBox(height: 16),
+
+                // 5. حقل كلمة المرور
+                TextField(
+                  controller: _passwordController,
+                  obscureText: _obscurePassword,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  style: const TextStyle(
+                    color: Colors.black87,
+                    fontSize: 16,
+                  ),
                   decoration: InputDecoration(
                     hintText: 'كلمة المرور',
                     hintStyle: const TextStyle(
-                      color: Color(0xFF999999),
-                      fontSize: 14,
-                    ),
-                    prefixIcon: const Icon(
-                      Icons.lock_outline_rounded,
-                      color: AppColors.primary,
-                      size: 22,
+                      color: Color(0xFF9E9E9E),
+                      fontSize: 15,
                     ),
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        color: const Color(0xFF888888),
-                        size: 22,
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        color: const Color(0xFF757575),
                       ),
                       onPressed: () {
                         setState(() => _obscurePassword = !_obscurePassword);
@@ -194,12 +183,28 @@ class _LoginScreenState extends State<LoginScreen> {
                       horizontal: 16,
                       vertical: 16,
                     ),
-                    border: _border(const Color(0xFFCCCCCC)),
-                    enabledBorder: _border(const Color(0xFFCCCCCC)),
-                    focusedBorder: _border(AppColors.primary, width: 2),
-                    errorBorder: _border(Colors.red),
-                    focusedErrorBorder: _border(Colors.red, width: 2),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFBDBDBD)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFBDBDBD)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: AppColors.primaryLight,
+                        width: 2,
+                      ),
+                    ),
                   ),
+                  onSubmitted: (_) => _submit(),
+                  onChanged: (_) {
+                    if (_errorMessage != null) {
+                      setState(() => _errorMessage = null);
+                    }
+                  },
                 ),
 
                 // رسالة الخطأ
@@ -207,65 +212,54 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 12),
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFB71C1C),
-                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.red.shade800,
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.error_outline,
-                            color: Colors.white, size: 18),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            _errorMessage!,
-                            style: GoogleFonts.cairo(
-                              fontSize: 13,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      _errorMessage!,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                   ),
                 ],
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
 
-                // زر الدخول
+                // 6. زر الدخول
                 Consumer<AuthProvider>(
                   builder: (context, auth, _) {
                     return SizedBox(
                       width: double.infinity,
-                      height: 52,
+                      height: 50,
                       child: ElevatedButton(
-                        onPressed: auth.isLoading ? null : _login,
+                        onPressed: auth.isLoading ? null : _submit,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF42A5F5),
+                          backgroundColor: AppColors.primaryLight,
                           foregroundColor: Colors.white,
                           disabledBackgroundColor: Colors.white24,
+                          elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          elevation: 0,
                         ),
                         child: auth.isLoading
                             ? const SizedBox(
-                                width: 24,
-                                height: 24,
+                                width: 22,
+                                height: 22,
                                 child: CircularProgressIndicator(
                                   color: Colors.white,
                                   strokeWidth: 2.5,
                                 ),
                               )
-                            : Text(
-                                'دخول',
-                                style: GoogleFonts.cairo(
-                                  fontSize: 17,
+                            : const Text(
+                                'تسجيل الدخول',
+                                style: TextStyle(
+                                  fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),
@@ -273,15 +267,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     );
                   },
-                ),
-
-                const SizedBox(height: 28),
-                Text(
-                  'v2.4.0',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Color(0x55FFFFFF),
-                  ),
                 ),
               ],
             ),
